@@ -27,6 +27,8 @@ qa_register_plugin_module('page', 'widgets.php', 'cs_theme_widgets', 'Theme Widg
 qa_register_plugin_layer('cs-layer.php', 'CS Control Layer');
 
 qa_register_plugin_module('widget', 'widgets/widget_ticker.php', 'cs_ticker_widget', 'CS Ticker');
+qa_register_plugin_module('widget', 'widgets/widget_activity.php', 'cs_activity_widget', 'CS Site Activity');
+
 
 function get_base_url()
 {
