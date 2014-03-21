@@ -137,11 +137,20 @@ function cs_user_data($handle){
 		$userinfo['userid'] = $userid;
 		$userinfo['handle'] = $handle;
 		$userinfo['email'] = $user_info->user_email;
+		if (user_can($userid , 'administrator'))
+			$level=QA_USER_LEVEL_ADMIN;
+		elseif (user_can($userid , 'editor'))
+			$level=QA_USER_LEVEL_EDITOR;
+		elseif (user_can($userid , 'contributor'))
+			$level=QA_USER_LEVEL_EXPERT;
+		else
+			$level=QA_USER_LEVEL_BASIC;
 		
 		$user[0] = $userinfo;
 		$user[1]['rank'] = $u_rank;
 		$user[2] = $u_points;
 		$user = ($user[0]+ $user[1]+ $user[2]);
+		$user['level'] = $level;
 	}else{
 		$user[0] = cs_get_cache_select_selectspec( qa_db_user_account_selectspec($userid, true) );
 		$user[1]['rank'] = cs_get_cache_select_selectspec( qa_db_user_rank_selectspec($handle) );
@@ -680,15 +689,8 @@ function cs_ajax_user_popover(){
 	if(isset($handle)){
 		$userid = qa_handle_to_userid($handle);
 		//$badges = ra_user_badge($handle);
-		
-		if(defined('QA_WORDPRESS_INTEGRATE_PATH')){
-			$userid = qa_handle_to_userid($handle);
-			$cover = get_user_meta( $userid, 'cover' );
-			$cover = $cover[0];
-		}else{
-			$data = cs_user_data($handle);
-		}
 
+		$data = cs_user_data($handle);
 		?>
 		<div id="<?php echo $userid;?>_popover" class="user-popover">
 			<div class="counts clearfix">
@@ -708,7 +710,7 @@ function cs_ajax_user_popover(){
 			<div class="bottom">	
 				<div class="avatar pull-left"><?php echo cs_get_avatar($handle, 30); ?></div>
 				<span class="name"><?php echo cs_name($handle); ?></span>				
-				<span class="level"><?php echo qa_user_level_string($data['level']); ?></span>				
+				<span class="level"><?php echo qa_user_level_string($data['level']);?></span>
 			</div>
 		</div>	
 		<?php
@@ -744,7 +746,7 @@ function stripslashes2($string) {
 	str_replace('\\', '', $string);
     return $string;
 }
-/* if (!function_exists('qa_user_level_string')) {
+ if (!function_exists('qa_user_level_string')) { // for external codes
 	function qa_user_level_string($level)
 	{
 		if (qa_to_override(__FUNCTION__)) { $args=func_get_args(); return qa_call_override(__FUNCTION__, $args); }
@@ -766,4 +768,4 @@ function stripslashes2($string) {
 		
 		return qa_lang($string);
 	}
-} */
+} 
