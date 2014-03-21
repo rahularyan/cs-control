@@ -23,7 +23,10 @@ define('CS_THEME_DIR', QA_THEME_DIR . '/cleanstrap');
 
 
 qa_register_plugin_module('page', 'options.php', 'cs_theme_options', 'Theme Options');
+qa_register_plugin_module('page', 'widgets.php', 'cs_theme_widgets', 'Theme Widgets');
 qa_register_plugin_layer('cs-layer.php', 'CS Control Layer');
+
+qa_register_plugin_module('widget', 'widgets/widget_ticker.php', 'cs_ticker_widget', 'CS Ticker');
 
 function get_base_url()
 {

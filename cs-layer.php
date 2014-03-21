@@ -12,11 +12,21 @@
 					'url' => qa_path_html('themeoptions'),
 					'icon' => 'icon-wrench'
 				);
+				$this->content['navigation']['user']['themewidgets'] = array(
+					'label' => 'Theme Widgets',
+					'url' => qa_path_html('themewidgets'),
+					'icon' => 'icon-puzzle',
+				);
 				if ($this->request == 'themeoptions') {
 					$this->content['navigation']['user']['themeoptions']['selected'] = true;
 					$this->content['navigation']['user']['selected']                 = true;
 					
 					$this->template = 'themeoptions';
+				}
+				if($this->request == 'themewidgets') {
+					$this->content['navigation']['user']['themewidgets']['selected'] = true;
+					$this->content['navigation']['user']['selected'] = true;
+					$this->template = 'widgets';
 				}
 			
 			}
