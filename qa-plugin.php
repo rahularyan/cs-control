@@ -27,6 +27,26 @@ qa_register_plugin_module('page', 'widgets.php', 'cs_theme_widgets', 'Theme Widg
 qa_register_plugin_layer('cs-layer.php', 'CS Control Layer');
 
 qa_register_plugin_module('widget', 'widgets/widget_ticker.php', 'cs_ticker_widget', 'CS Ticker');
+qa_register_plugin_module('widget', 'widgets/widget_activity.php', 'cs_activity_widget', 'CS Site Activity');
+qa_register_plugin_module('widget', 'widgets/widget_ask.php', 'cs_ask_widget', 'CS Ajax Ask');
+
+	//enable category widget only if category is active in q2a
+	//if ( qa_using_categories() )
+qa_register_plugin_module('widget', 'widgets/widget_categories.php', 'widget_categories', 'CS Categories');
+qa_register_plugin_module('widget', 'widgets/widget_tags.php', 'cs_tags_widget', 'CS Tags');
+qa_register_plugin_module('widget', 'widgets/widget_text.php', 'cs_widget_text', 'CS Text Widget');
+qa_register_plugin_module('widget', 'widgets/widget_current_category.php', 'cs_current_category_widget', 'CS Current Cat');
+qa_register_plugin_module('widget', 'widgets/widget_user_posts.php', 'cs_user_posts_widget', 'CS User Posts');
+qa_register_plugin_module('widget', 'widgets/widget_featured_questions.php', 'cs_featured_questions_widget', 'CS Featured Questions');
+qa_register_plugin_module('widget', 'widgets/widget_question_activity.php', 'cs_question_activity_widget', 'CS Question Activity');
+qa_register_plugin_module('widget', 'widgets/widget_related_questions.php', 'cs_related_questions', 'CS Related Questions');
+qa_register_plugin_module('widget', 'widgets/widget_new_users.php', 'cs_new_users_widget', 'CS New Users');
+qa_register_plugin_module('widget', 'widgets/widget_site_status.php', 'cs_site_status_widget', 'CS Site Status');
+qa_register_plugin_module('widget', 'widgets/widget_top_users.php', 'cs_top_users_widget', 'CS Top Contributors');
+qa_register_plugin_module('widget', 'widgets/widget_posts.php', 'cs_widget_posts', 'CS Posts');
+qa_register_plugin_module('widget', 'widgets/widget_user_activity.php', 'cs_user_activity_widget', 'CS User Activity');
+
+
 
 function get_base_url()
 {

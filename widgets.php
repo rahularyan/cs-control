@@ -92,7 +92,7 @@ class cs_theme_widgets {
 						<input type="checkbox" name="show_title" checked> Show widget title</label><br />
 						<span>Select where you want to show</span>
 						<?php
-							$this->get_widget_template_checkbox();
+							echo $this->get_widget_template_checkbox();
 						?>
 					</div>
 					<div class="widget-option">
