@@ -19,6 +19,9 @@ if (!defined('QA_VERSION')) { // don't allow this page to be requested directly 
 }
 
 define('CS_CONTROL_DIR', dirname( __FILE__ ));
+if (!(defined(CS_THEME_DIR))){
+	define('CS_THEME_DIR', dirname(dirname(CS_CONTROL_DIR)). '/qa-theme/CleanStarp'  ); // add theme directory here
+}
 define('CS_THEME_DIR', QA_THEME_DIR . '/cleanstrap');
 
 
@@ -45,8 +48,6 @@ qa_register_plugin_module('widget', 'widgets/widget_site_status.php', 'cs_site_s
 qa_register_plugin_module('widget', 'widgets/widget_top_users.php', 'cs_top_users_widget', 'CS Top Contributors');
 qa_register_plugin_module('widget', 'widgets/widget_posts.php', 'cs_widget_posts', 'CS Posts');
 qa_register_plugin_module('widget', 'widgets/widget_user_activity.php', 'cs_user_activity_widget', 'CS User Activity');
-
-
 
 function get_base_url()
 {
@@ -421,6 +422,9 @@ function cs_social_icons(){
 
 
 function reset_theme_options(){
+	if (!(defined(Q_THEME_URL))){
+		define('Q_THEME_URL', get_base_url().'/qa-theme/'.qa_get_site_theme());
+	}
 	qa_opt('cs_custom_style','');
 	// General
 	qa_opt('logo_url', Q_THEME_URL . '/images/logo.png');
@@ -436,7 +440,7 @@ function reset_theme_options(){
 	
 	
 	// Layout
-	qa_opt('cs_theme_layout', 'boxed');
+	qa_opt('cs_nav_position', 'top');
 	qa_opt('cs_nav_fixed', true);	
 	qa_opt('cs_show_icon', true);	
 	qa_opt('cs_enable_ask_button', true);	
@@ -508,7 +512,9 @@ function is_featured($postid){
 function get_featured_thumb($postid){
 	require_once QA_INCLUDE_DIR.'qa-db-metas.php';
 	$img =  qa_db_postmeta_get($postid, 'featured_image');
-
+	if (!(defined(Q_THEME_URL))){
+		define('Q_THEME_URL', get_base_url().'/qa-theme/'.qa_get_site_theme());
+	}
 	if (!empty($img)){
 		$thumb_img = preg_replace('/(\.[^.]+)$/', sprintf('%s$1', '_s'), $img);
 		return '<img class="featured-image" src="'.Q_THEME_URL . '/uploads/' . $thumb_img .'" />';
@@ -518,7 +524,9 @@ function get_featured_thumb($postid){
 function get_featured_image($postid){
 	require_once QA_INCLUDE_DIR.'qa-db-metas.php';
 	$img =  qa_db_postmeta_get($postid, 'featured_image');
-
+	if (!(defined(Q_THEME_URL))){
+		define('Q_THEME_URL', get_base_url().'/qa-theme/'.qa_get_site_theme());
+	}
 	if (!empty($img))
 		return '<img class="image-preview" id="image-preview" src="'.Q_THEME_URL . '/uploads/' . $img.'" />';
 		
