@@ -132,7 +132,9 @@ function cs_user_data($handle){
 	if(defined('QA_WORDPRESS_INTEGRATE_PATH')){
 		$u_rank = cs_get_cache_select_selectspec(qa_db_user_rank_selectspec($userid,true));
 		$u_points = cs_get_cache_select_selectspec(qa_db_user_points_selectspec($userid,true));
-		
+		if (empty($u_points))
+			$u_points=array();
+			
 		$userinfo = array();
 		$user_info = get_userdata( $userid );
 		$userinfo['userid'] = $userid;
@@ -502,7 +504,7 @@ function reset_theme_options(){
 	qa_opt('cs_ads_after_question_content','');
 
 	// footer							
-	qa_opt('cs_footer_copyright', 'Copyright © 2014');
+	qa_opt('cs_footer_copyright', 'Copyright ï¿½ 2014');
 }
 
 function is_featured($postid){
