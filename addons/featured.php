@@ -1,4 +1,5 @@
 <?php
+
 /*
 	Name:Featured
 	Type:page
@@ -7,6 +8,7 @@
 	Author: Rahul Aryan
 	Description:For showing featured questions in a creative style
 */	
+
 if (!defined('QA_VERSION')) {
 		header('Location: /');
 		exit;
@@ -38,7 +40,7 @@ class cs_featured_page {
 		$qa_content['error']="";
 		$qa_content['suggest_next']="";
 		
-		$qa_content['custom']= 'Yo buddy' ;
+		$qa_content['custom']= 'Yo buddy hahahh' ;
 		
 		return $qa_content;	
 	}
