@@ -2,7 +2,9 @@
 
 	class qa_html_theme_layer extends qa_html_theme_base {
 		
-		function doctype(){	
+		function doctype(){			
+	
+			
 			qa_html_theme_base::doctype();
 			
 			if(qa_get_logged_in_level() >= QA_USER_LEVEL_ADMIN)	{
@@ -17,6 +19,11 @@
 					'url' => qa_path_html('themewidgets'),
 					'icon' => 'icon-puzzle',
 				);
+				$this->content['navigation']['main']['featured'] = array(
+					'label' => 'featured',
+					'url' => qa_path_html('featured'),
+					'icon' => 'icon-star',
+				);
 				if ($this->request == 'themeoptions') {
 					$this->content['navigation']['user']['themeoptions']['selected'] = true;
 					$this->content['navigation']['user']['selected']                 = true;
@@ -30,16 +37,60 @@
 				}
 			
 			}
+
 		}
 		
 		function head_script()
 		{
 			qa_html_theme_base::head_script();
+			
+			
 			if ($this->request == 'themeoptions') {
 				$this->output('<script type="text/javascript" src="' . Q_THEME_URL . '/js/admin.js"></script>');
 				$this->output('<script type="text/javascript" src="' . Q_THEME_URL . '/js/spectrum.js"></script>'); // color picker
 				$this->output('<script type="text/javascript" src="' . Q_THEME_URL . '/js/chosen.jquery.min.js"></script>'); // Select list
 				$this->output('<script type="text/javascript" src="' . Q_THEME_URL . '/js/jquery.uploadfile.min.js"></script>'); // File uploader
+			}
+			
+			if($this->cs_is_widget_active('CS Ask Form') && $this->template != 'ask'){
+				$this->output('<script type="text/javascript" src="'.get_base_url().'/qa-content/qa-ask.js"></script>');
+				
+				list($categories, $completetags)=qa_db_select_with_pending(
+					qa_db_category_nav_selectspec(qa_get('cat'), true),
+					qa_db_popular_tags_selectspec(0, QA_DB_RETRIEVE_COMPLETE_TAGS)
+				);
+				
+				if(qa_using_tags()){
+					$completetags = qa_opt('do_complete_tags') ? array_keys($completetags) : array();
+					$a_template='<a href="#" class="qa-tag-link" onclick="return qa_tag_click(this);">^</a>';
+					$this->output('<script type="text/javascript">
+						var qa_tag_template = \''.$a_template.'\',
+							qa_tag_onlycomma = \''.(int)qa_opt('tag_separator_comma').'\',
+							qa_tags_examples = "",
+							qa_tags_complete = \''.qa_html(implode(',', $completetags)).'\',
+							qa_tags_max = "'.(int)qa_opt('page_size_ask_tags').'";
+					</script>');
+				}
+				
+				
+				if (qa_using_categories() && count($categories)) {
+					$pathcategories=qa_category_path($categories, qa_get('cat'));
+					$startpath='';
+					foreach ($pathcategories as $category)
+						$startpath.='/'.$category['categoryid'];
+					$allownosub = qa_opt('allow_no_sub_category');
+				}
+				
+				
+
+				$this->output('
+				<script type="text/javascript">
+					var qa_cat_exclude=\'' . qa_opt('allow_no_sub_category') . '\';
+					var qa_cat_allownone=1;
+					var qa_cat_allownosub=' . (int)qa_opt('allow_no_sub_category') . ';
+					var qa_cat_maxdepth=' . QA_CATEGORY_DEPTH . ';
+					qa_category_select(\'category\', '.qa_js($startpath).');
+				</script>');
 			}
 		}
 		

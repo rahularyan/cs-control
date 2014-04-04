@@ -22,16 +22,12 @@ define('CS_CONTROL_DIR', dirname( __FILE__ ));
 define('CS_THEME_DIR', QA_THEME_DIR . '/cleanstrap');
 
 
-qa_register_plugin_module('page', 'options.php', 'cs_theme_options', 'Theme Options');
-qa_register_plugin_module('page', 'widgets.php', 'cs_theme_widgets', 'Theme Widgets');
-qa_register_plugin_layer('cs-layer.php', 'CS Control Layer');
+
 
 qa_register_plugin_module('widget', 'widgets/widget_ticker.php', 'cs_ticker_widget', 'CS Ticker');
 qa_register_plugin_module('widget', 'widgets/widget_activity.php', 'cs_activity_widget', 'CS Site Activity');
 qa_register_plugin_module('widget', 'widgets/widget_ask.php', 'cs_ask_widget', 'CS Ajax Ask');
-
-	//enable category widget only if category is active in q2a
-	//if ( qa_using_categories() )
+qa_register_plugin_module('widget', 'widgets/widget_ask_form.php', 'cs_ask_form_widget', 'CS Ask Form');
 qa_register_plugin_module('widget', 'widgets/widget_categories.php', 'widget_categories', 'CS Categories');
 qa_register_plugin_module('widget', 'widgets/widget_tags.php', 'cs_tags_widget', 'CS Tags');
 qa_register_plugin_module('widget', 'widgets/widget_text.php', 'cs_widget_text', 'CS Text Widget');
@@ -45,8 +41,16 @@ qa_register_plugin_module('widget', 'widgets/widget_site_status.php', 'cs_site_s
 qa_register_plugin_module('widget', 'widgets/widget_top_users.php', 'cs_top_users_widget', 'CS Top Contributors');
 qa_register_plugin_module('widget', 'widgets/widget_posts.php', 'cs_widget_posts', 'CS Posts');
 qa_register_plugin_module('widget', 'widgets/widget_user_activity.php', 'cs_user_activity_widget', 'CS User Activity');
+qa_register_plugin_module('widget', 'widgets/widget_scroller.php', 'cs_widget_scroller', 'CS Scroller');
+
+qa_register_plugin_module('page', 'options.php', 'cs_theme_options', 'Theme Options');
+qa_register_plugin_module('page', 'widgets.php', 'cs_theme_widgets', 'Theme Widgets');
 
 
+qa_register_plugin_layer('cs-layer.php', 'CS Control Layer');
+
+//load all addons
+cs_load_addons();
 
 function get_base_url()
 {
@@ -72,6 +76,72 @@ function get_base_url()
 	return $protocol . $host . $directory;
 }	
 
+function cs_readdir($path){
+	$path = CS_CONTROL_DIR.'/'.$path;
+	foreach(array_diff(scandir($path), array('.', '..')) as $f) 
+		if (is_file($path . '/' . $f) && (('.php') ? preg_match("/(\.php$)/", $f) : 1)) 
+			$l[] = $f;
+	return $l; 
+}
+
+function cs_read_addons(){
+	$addons = array();
+	//load files from addons folder
+	foreach (cs_readdir('/addons') as $file){
+		$data = cs_get_addon_data(CS_CONTROL_DIR.'/addons/'.$file);
+		$data['file'] = $file;
+		$addons[] = $data;
+	}
+	return $addons;
+}
+
+function cs_load_addons(){
+	$addons = cs_read_addons();
+	if(!empty($addons))
+		foreach($addons as $addon){
+			if(isset($addon['type']) && isset($addon['file']) && isset($addon['class']) && isset($addon['name']))
+				qa_register_plugin_module($addon['type'], 'addons/'.$addon['file'], $addon['class'], $addon['name']);
+		}
+}
+
+function cs_get_addon_data( $plugin_file) {
+	$plugin_data = cs_get_file_data( $plugin_file);
+
+	return $plugin_data;
+}
+
+function cs_get_file_data( $file) {
+	// We don't need to write to the file, so just open for reading.
+	$fp = fopen( $file, 'r' );
+
+	// Pull only the first 8kiB of the file in.
+	$file_data = fread( $fp, 8192 );
+
+	// PHP will close file handle, but we are good citizens.
+	fclose( $fp );
+
+	$metadata=cs_addon_metadata($file_data, array(
+		'name' => 'Name',
+		'type' => 'Type',
+		'class' => 'Class',
+		'description' => 'Description',
+		'version' => 'Version',
+		'author' => 'Author',
+		'author_uri' => 'Author URI'
+	));
+
+	return $metadata;
+}
+
+function cs_addon_metadata($contents, $fields){
+	$metadata=array();
+
+	foreach ($fields as $key => $field)
+		if (preg_match('/'.str_replace(' ', '[ \t]*', preg_quote($field, '/')).':[ \t]*([^\n\f]*)[\n\f]/i', $contents, $matches))
+			$metadata[$key]=trim($matches[1]);
+	
+	return $metadata;
+}
 
 function get_all_widgets()
 {		
@@ -84,6 +154,7 @@ function get_all_widgets()
 	return $widgets;
 
 }
+
 function get_widgets_by_position($position)
 {		
 	$widgets = qa_db_read_all_assoc(qa_db_query_sub('SELECT * FROM ^ra_widgets WHERE position = $ ORDER BY widget_order', $position));
