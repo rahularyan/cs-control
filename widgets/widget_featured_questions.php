@@ -99,25 +99,25 @@
 					$handle = $p['handle'];
 				
 				if($type=='Q'){
-					$link_header = '<a href="'. qa_q_path_html($p['postid'], $p['title']) .'" title="'. $p['title'] .'">';
+					$link_header = qa_q_path_html($p['postid'], $p['title']) .'" title="'. $p['title'];
 				}elseif($type=='A'){
-					$link_header = '<a href="'.cs_post_link($p['parentid']).'#a'.$p['postid'].'">';
+					$link_header = cs_post_link($p['parentid']).'#a'.$p['postid'];
 				}else{
-					$link_header = '<a href="'.cs_post_link($p['parentid']).'#c'.$p['postid'].'">';
+					$link_header = cs_post_link($p['parentid']).'#c'.$p['postid'];
 				}
 				
 				$output .= '<div class="slider-item col-sm-'.(12/$col_item).'">';
 				$output .= '<div class="slider-item-inner">';
 				$featured_img = get_featured_thumb($p['postid']);
 				if ($featured_img)
-					$output .= $link_header . '<div class="featured-image">'.$featured_img.'</div></a>';
+					$output .= '<a class="featured-image" href="'.$link_header.'"><div class="featured-image">'.$featured_img.'</div></a>';
 				if ($type=='Q'){
 					$output .= '<div class="big-ans-count pull-left">'.$p['acount'].'<span> ans</span></div>';
 				}elseif($type=='A'){
 					$output .= '<div class="big-ans-count pull-left vote">'.$p['netvotes'].'<span>'.qa_lang('cleanstrap/vote').'</span></div>';
 				}
 
-				$output .= '<h5>' . $link_header . cs_truncate(qa_html($p['title']), 50).'</a></h5>';
+				$output .= '<a class="title" href="'.$link_header.'">' . cs_truncate(qa_html($p['title']), 100).'</a>';
 
 
 				$output .= '<div class="meta">';
@@ -152,7 +152,7 @@
 			$themeobject->output('<div class="ra-featured-widget">');
 			
 			if(@$themeobject->current_widget['param']['locations']['show_title'])
-				$themeobject->output('<h3 class="widget-title">Featured Questions</h3>');
+				$themeobject->output('<h3 class="widget-title">'.qa_lang('cleanstrap/featured_question').'</h3>');
 				
 			$themeobject->output('
 

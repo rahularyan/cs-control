@@ -51,7 +51,8 @@
 		
 		function output_widget($region, $place, $themeobject, $template, $request, $qa_content)
 		{
-
+			$widget_opt = $themeobject->current_widget['param']['options'];
+			
 			$sdn =' style="display:none"';
 			if (isset($qa_content['categoryids']))
 				$params=array('cat' => end($qa_content['categoryids']));
@@ -89,7 +90,10 @@
 					' . $category_options . '
 				</select>
 				<div id="category_note"></div>';
+			
 			$themeobject->output('<div class="cs-ask-widget-form">');
+			if(@$themeobject->current_widget['param']['locations']['show_title'])
+				$themeobject->output('<h3 class="widget-title">'.qa_lang('cleanstrap/ask_question').'</h3>');
 			
 			$themeobject->output(
 				'<form action="'.qa_path_html('ask', $params).'" method="post">',
@@ -108,6 +112,14 @@
 					'<span id="tag_complete_title"'.$sdn.'>'.qa_lang_html('question/matching_tags').'</span><span id="tag_hints">',
 					'<span id="tag_hints"></span></div>');
 					
+					
+			if (!qa_is_logged_in()){
+				$themeobject->output('<input type="text" class="form-control" placeholder="'.qa_lang_html('cleanstrap/your_name').'" name="name">');
+				
+				$themeobject->output('<label class="checkbox-inline"><input id="notify" type="checkbox" checked="" value="1" name="notify" /> Notify me</label>');
+			
+				$themeobject->output('<input type="text" id="email" class="form-control" placeholder="'.qa_lang_html('cleanstrap/your_email').'" name="email">');
+			}	
 			$themeobject->output('<button class="btn" type="submit">Submit question</button>',
 					'<input type="hidden" value="'.qa_get_form_security_code('ask').'" name="code">',
 					'<input type="hidden" value="'.qa_html(qa_opt('editor_for_qs')).'" name="editor">',
