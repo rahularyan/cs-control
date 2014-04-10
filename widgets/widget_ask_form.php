@@ -116,7 +116,7 @@
 			if (!qa_is_logged_in()){
 				$themeobject->output('<input type="text" class="form-control" placeholder="'.qa_lang_html('cleanstrap/your_name').'" name="name">');
 				
-				$themeobject->output('<label class="checkbox-inline"><input id="notify" type="checkbox" checked="" value="1" name="notify" /> Notify me</label>');
+				$themeobject->output('<div class="form-group"><label class="checkbox-inline"><input id="notify" type="checkbox" checked="" value="1" name="notify" /> Notify me</label></div>');
 			
 				$themeobject->output('<input type="text" id="email" class="form-control" placeholder="'.qa_lang_html('cleanstrap/your_email').'" name="email">');
 			}	

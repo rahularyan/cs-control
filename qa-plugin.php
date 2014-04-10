@@ -19,6 +19,7 @@ if (!defined('QA_VERSION')) { // don't allow this page to be requested directly 
 }
 
 define('CS_CONTROL_DIR', dirname( __FILE__ ));
+define('CS_CONTROL_URL', get_base_url().'/qa-plugin/cs-control');
 define('CS_THEME_DIR', QA_THEME_DIR . '/cleanstrap');
 
 
@@ -49,6 +50,7 @@ qa_register_plugin_module('page', 'widgets.php', 'cs_theme_widgets', 'Theme Widg
 
 qa_register_plugin_layer('cs-layer.php', 'CS Control Layer');
 
+
 //load all addons
 cs_load_addons();
 
@@ -58,7 +60,7 @@ function get_base_url()
 	$protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, 5)) == 'https' ? 'https://' : 'http://';
 
 	/* returns /myproject/index.php */
-	if(qa_opt('neat_urls') == 0 || strpos($_SERVER['PHP_SELF'],'/index.php/') !== false):
+	if(QA_URL_FORMAT_NEAT == 0 || strpos($_SERVER['PHP_SELF'],'/index.php/') !== false):
 		$path = strstr($_SERVER['PHP_SELF'], '/index', true);
 		$directory = $path;
 	else:
@@ -76,20 +78,28 @@ function get_base_url()
 	return $protocol . $host . $directory;
 }	
 
-function cs_readdir($path){
-	$path = CS_CONTROL_DIR.'/'.$path;
-	foreach(array_diff(scandir($path), array('.', '..')) as $f) 
-		if (is_file($path . '/' . $f) && (('.php') ? preg_match("/(\.php$)/", $f) : 1)) 
-			$l[] = $f;
-	return $l; 
-}
 
 function cs_read_addons(){
 	$addons = array();
 	//load files from addons folder
-	foreach (cs_readdir('/addons') as $file){
-		$data = cs_get_addon_data(CS_CONTROL_DIR.'/addons/'.$file);
-		$data['file'] = $file;
+	$files=glob(CS_CONTROL_DIR.'/addons/*/addon.php');
+	//print_r($files);
+	foreach ($files as $file){
+		$data = cs_get_addon_data($file);
+		$data['folder'] = basename(dirname($file));
+		$data['file'] = basename($file);
+		$addons[] = $data;
+	}
+	return $addons;
+}
+function cs_read_addons_ajax(){
+	$addons = array();
+	//load files from addons folder
+	$files=glob(CS_CONTROL_DIR.'/addons/*/ajax.php');
+	//print_r($files);
+	foreach ($files as $file){
+		$data['folder'] = basename(dirname($file));
+		$data['file'] = basename($file);
 		$addons[] = $data;
 	}
 	return $addons;
@@ -99,10 +109,20 @@ function cs_load_addons(){
 	$addons = cs_read_addons();
 	if(!empty($addons))
 		foreach($addons as $addon){
-			if(isset($addon['type']) && isset($addon['file']) && isset($addon['class']) && isset($addon['name']))
-				qa_register_plugin_module($addon['type'], 'addons/'.$addon['file'], $addon['class'], $addon['name']);
+			if(isset($addon['type']) && $addon['type']=='layer' && isset($addon['file']) && isset($addon['class']) && isset($addon['name']))
+				qa_register_plugin_layer('addons/'.$addon['folder'].'/'.$addon['file'], $addon['name']);
+			elseif(isset($addon['type']) && isset($addon['file']) && isset($addon['class']) && isset($addon['name']))
+				qa_register_plugin_module($addon['type'], 'addons/'.$addon['folder'].'/'.$addon['file'], $addon['class'], $addon['name']);
 		}
 }
+function cs_load_addons_ajax(){
+	$addons = cs_read_addons_ajax();
+	if(!empty($addons))
+		foreach($addons as $addon){			
+			include_once CS_CONTROL_DIR.'/addons/'.$addon['folder'].'/'.$addon['file'];			
+		}
+}
+
 
 function cs_get_addon_data( $plugin_file) {
 	$plugin_data = cs_get_file_data( $plugin_file);
