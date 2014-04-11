@@ -17,18 +17,20 @@ class qa_html_theme_layer extends qa_html_theme_base {
 			if (isset( $userid )){
 				$handle = qa_get_logged_in_handle();
 				$this->output('
-					<ul class="nav navbar-nav not-nav activity-bar pull-right">
-						<li class="button dropdown">
-							<a href="' . qa_path_html('user/' . $handle . '/activity') . '" class=" icon-flag2 dropdown-toggle activitylist" data-toggle="dropdown" id="activitylist">Recent Activity</a>
-							<ul class="dropdown-menu activity-dropdown-list" id="activity-dropdown-list"></ul>
-						</li>
-					</ul>
-					<ul class="nav navbar-nav not-nav message-bar pull-right">
-						<li class="button dropdown">
-							<a href="' . qa_path_html('message/' . $handle ) . '" class="icon-envelope dropdown-toggle messagelist" data-toggle="dropdown" id="messagelist">messages</a>
-							<ul class="dropdown-menu message-dropdown-list" id="message-dropdown-list"></ul>
-						</li>
-					</ul>
+					<div class="user-actions pull-right">
+						<div class="activity-bar">
+							<div class="button dropdown">
+								<a href="' . qa_path_html('user/' . $handle . '/activity') . '" class=" icon-flag2 dropdown-toggle activitylist" data-toggle="dropdown" id="activitylist"></a>
+								<ul class="dropdown-menu activity-dropdown-list" id="activity-dropdown-list pull-right"></ul>
+							</div>
+						</div>
+						<div class="message-bar">
+							<div class="button dropdown">
+								<a href="' . qa_path_html('message/' . $handle ) . '" class="icon-envelope dropdown-toggle messagelist" data-toggle="dropdown" id="messagelist"></a>
+								<ul class="dropdown-menu message-dropdown-list pull-right" id="message-dropdown-list"></ul>
+							</div>
+						</div>
+					</div>
 				');
 			}
 		//}
@@ -41,7 +43,7 @@ class qa_html_theme_layer extends qa_html_theme_base {
 	
 	function head_css(){
 		qa_html_theme_base::head_css();
-		$this->output('<link rel="stylesheet" type="text/css" href="' . CS_CONTROL_URL . '/styles.css"/>');
+		$this->output('<link rel="stylesheet" type="text/css" href="' . CS_CONTROL_URL . '/addons/notification/styles.css"/>');
 	}
 	
 }

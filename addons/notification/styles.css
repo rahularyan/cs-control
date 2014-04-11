@@ -1,0 +1,31 @@
+.user-actions{
+
+}
+.user-actions > div{
+    display: block;
+    float: left;
+}
+.user-actions .dropdown-toggle{
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.4);
+    border-radius: 2px;
+    color: #EEEEEE;
+    display: block;
+    font-size: 18px;
+    height: 35px;
+    margin-left: 8px;
+    padding: 4px 7px;
+    text-align: center;
+    width: 35px;
+}
+.user-actions .open .dropdown-toggle{
+    background: none repeat scroll 0 0 #FFFFFF;
+    position: relative;
+    z-index: 9999;
+}
+.user-actions .dropdown-menu{
+    border: medium none;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+    margin-top: -4px;
+    padding: 10px;
+    width: 300px;
+}
