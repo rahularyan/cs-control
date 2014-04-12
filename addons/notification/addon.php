@@ -21,7 +21,7 @@ class qa_html_theme_layer extends qa_html_theme_base {
 						<div class="activity-bar">
 							<div class="button dropdown">
 								<a href="' . qa_path_html('user/' . $handle . '/activity') . '" class=" icon-flag2 dropdown-toggle activitylist" data-toggle="dropdown" id="activitylist"></a>
-								<ul class="dropdown-menu activity-dropdown-list" id="activity-dropdown-list pull-right"></ul>
+								<div class="dropdown-menu activity-dropdown-list" id="activity-dropdown-list pull-right"></div>
 							</div>
 						</div>
 						<div class="message-bar">

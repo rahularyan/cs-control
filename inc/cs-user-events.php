@@ -1,5 +1,5 @@
 <?php
-	class qa_user_event_logger {
+	class cs_user_event_logger {
 
 
 		function process_event($event, $userid, $handle, $cookieid, $params)
@@ -8,9 +8,10 @@
 			$loggeduserid = qa_get_logged_in_userid();
 			$dolog=true;
 			$postid = @$params['postid'];
+			
 			switch($event){
 				case 'a_post': // user's question had been answered
-					//qa_fatal_error(var_dump($params['question']['title']));
+					
 					if ($loggeduserid != $params['parent']['userid']){
 						$effecteduserid = $params['parent']['userid'];
 						$question = $this->GetQuestion($params);
@@ -209,22 +210,25 @@
 			}
 		}
 		
-		function UpdateVote($newevent, $postid,$userid, $params, $eventname, $value)
+		function UpdateVote($newevent, $postid, $userid, $params, $eventname, $value)
 		{
 			$effecteduserid = $this->GetUseridFromPost($postid);
 			$posts = qa_db_read_all_values(qa_db_query_sub(
 				'SELECT params FROM ^userlog WHERE postid=$ AND event=$',
 				$postid, $newevent
 			));
+			qa_fatal_error(var_dump($effecteduserid));
 			if (!isset($effecteduserid))
 				return; // post from anonymous user
+				
 			if (count($posts) == 0 ){ // Add New Event
+				
 				if(($eventname!='q_vote_nil') && ($eventname!='a_vote_nil') && ($eventname!='unfavorite')){
 					$question = $this->GetQuestion($params);
 					$params['qtitle'] = $question['title'];
 					$params['qid'] = $question['postid'];
 					$params['newvotes']=$value;
-					//qa_fatal_error(var_dump($question));
+					
 					$params[$eventname]=1;
 					$this->AddEvent($postid,$userid, $effecteduserid, $params, $newevent);
 				}
@@ -340,12 +344,14 @@
 		}
 		function GetUseridFromPost($postid)
 		{
+			
 			$uid = qa_db_read_one_value(
 				qa_db_query_sub(
 					'SELECT userid FROM ^posts WHERE postid=#',
 					$postid
 				),true
 			);
+			qa_fatal_error(var_dump($uid));
 			return $uid;
 		}
 	}

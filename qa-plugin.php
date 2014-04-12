@@ -24,7 +24,7 @@ define('CS_THEME_DIR', QA_THEME_DIR . '/cleanstrap');
 
 
 qa_register_plugin_module('event', 'inc/init.php', 'cs_init', 'CS Init');
-qa_register_plugin_module('event', 'inc/qa-user-event-logger.php', 'qa_user_event_logger', 'User Event Logger');
+qa_register_plugin_module('event', 'inc/cs-user-events.php', 'cs_user_event_logger', 'CS User Event Logger');
 
 qa_register_plugin_module('widget', 'widgets/widget_ticker.php', 'cs_ticker_widget', 'CS Ticker');
 qa_register_plugin_module('widget', 'widgets/widget_activity.php', 'cs_activity_widget', 'CS Site Activity');
