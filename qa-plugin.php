@@ -23,7 +23,8 @@ define('CS_CONTROL_URL', get_base_url().'/qa-plugin/cs-control');
 define('CS_THEME_DIR', QA_THEME_DIR . '/cleanstrap');
 
 
-
+qa_register_plugin_module('event', 'inc/init.php', 'cs_init', 'CS Init');
+qa_register_plugin_module('event', 'inc/qa-user-event-logger.php', 'qa_user_event_logger', 'User Event Logger');
 
 qa_register_plugin_module('widget', 'widgets/widget_ticker.php', 'cs_ticker_widget', 'CS Ticker');
 qa_register_plugin_module('widget', 'widgets/widget_activity.php', 'cs_activity_widget', 'CS Site Activity');
@@ -119,7 +120,7 @@ function cs_load_addons_ajax(){
 	$addons = cs_read_addons_ajax();
 	if(!empty($addons))
 		foreach($addons as $addon){			
-			include_once CS_CONTROL_DIR.'/addons/'.$addon['folder'].'/'.$addon['file'];			
+			require_once CS_CONTROL_DIR.'/addons/'.$addon['folder'].'/'.$addon['file'];			
 		}
 }
 

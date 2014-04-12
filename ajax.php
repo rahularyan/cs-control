@@ -5,7 +5,7 @@
 
 
 //	Ensure no PHP errors are shown in the Ajax response
-	//@ini_set('display_errors', 0);
+	@ini_set('display_errors', 0);
 
 
 //	Load the Q2A base file which sets up a bunch of crucial functions
@@ -22,10 +22,14 @@
 	require_once QA_INCLUDE_DIR.'qa-app-options.php';
 	require_once QA_INCLUDE_DIR.'qa-db-selects.php';
 
+	// load all addons ajax query
+	cs_load_addons_ajax();
+
 if(isset($_REQUEST['action'])){
 	$action = 'cs_ajax_'.$_REQUEST['action'];
-	if(function_exists($action))
+	//if(function_exists($action))
 		$action();
+		sdjfbshdf();
 }	
 
 
@@ -65,7 +69,4 @@ function cs_ajax_delete_widget()
 	die();
 }
 
-// load all addons ajax query
-cs_load_addons_ajax();
 
-print_r(cs_ajax_activitylist());
