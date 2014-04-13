@@ -22,6 +22,8 @@ define('CS_CONTROL_DIR', dirname( __FILE__ ));
 define('CS_CONTROL_URL', get_base_url().'/qa-plugin/cs-control');
 define('CS_THEME_DIR', QA_THEME_DIR . '/cleanstrap');
 
+// register plugin language
+qa_register_plugin_phrases('language/cs-lang-*.php', 'cleanstrap');
 
 qa_register_plugin_module('event', 'inc/init.php', 'cs_init', 'CS Init');
 qa_register_plugin_module('event', 'inc/cs-user-events.php', 'cs_user_event_logger', 'CS User Event Logger');
