@@ -17,8 +17,8 @@
 						$question = $this->GetQuestion($params);
 						$params['qtitle'] = $question['title'];
 						$params['qid'] = $question['postid'];
-					}else 
-						$dolog=false;
+						$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
+					}
 					break;
 				case 'c_post': // user's answer had been commented
 					if ($loggeduserid != $params['parent']['userid']){
@@ -26,10 +26,10 @@
 						$question = $this->GetQuestion($params);
 						$params['qtitle'] = $question['title'];
 						$params['qid'] = $question['postid'];
-					}else 
-						$dolog=false;
+						$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
+					}
 					break;
-				case 'q_reshow':
+				case 'q_reshow':				
 					require_once QA_INCLUDE_DIR.'qa-app-posts.php';
 					$post = qa_post_get_full($postid);
 					if ($loggeduserid != $post['userid']){
@@ -37,8 +37,8 @@
 						$question = $this->GetQuestion($params);
 						$params['qtitle'] = $question['title'];
 						$params['qid'] = $question['postid'];
-					}else 
-						$dolog=false;
+						$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
+					}
 					break;
 				case 'a_reshow':
 					require_once QA_INCLUDE_DIR.'qa-app-posts.php';
@@ -51,8 +51,8 @@
 						unset($params['oldanswer']);
 						unset($params['content']);
 						unset($params['text']);
-					}else 
-						$dolog=false;
+						$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
+					}
 					break;
 				case 'c_reshow':
 					require_once QA_INCLUDE_DIR.'qa-app-posts.php';
@@ -63,8 +63,8 @@
 						$question = $this->GetQuestion($params);
 						$params['qtitle'] = $question['title'];
 						$params['qid'] = $question['postid'];
-					}else 
-						$dolog=false;
+						$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
+					}
 					break;
 				case 'a_unselect':
 					require_once QA_INCLUDE_DIR.'qa-app-posts.php';
@@ -74,7 +74,7 @@
 						"DELETE FROM ^userlog WHERE effecteduserid=$ AND event=$ AND postid=$",
 						$effecteduserid, 'a_select', $postid
 					);
-					$dolog=false;
+					
 					break;
 				case 'a_select':
 					require_once QA_INCLUDE_DIR.'qa-app-posts.php';
@@ -84,31 +84,31 @@
 						$question = $this->GetQuestion($params);
 						$params['qtitle'] = $question['title'];
 						$params['qid'] = $question['postid'];
-					}else
-						$dolog=false;
+						$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
+					}
 					break;
 				case 'q_vote_up':
-					$this->UpdateVote('in_q_vote', $postid,$userid, $params, 'q_vote_up', 1);
+					$this->UpdateVote('q_vote_up', $postid,$userid, $params, 'q_vote_up', 1);
 					$dolog=false;
 					break;
 				case 'a_vote_up':
-					$this->UpdateVote('in_a_vote', $postid,$userid, $params, 'a_vote_up', 1);
+					$this->UpdateVote('a_vote_up', $postid,$userid, $params, 'a_vote_up', 1);
 					$dolog=false;
 					break;
 				case 'q_vote_down':
-					$this->UpdateVote('in_q_vote', $postid,$userid, $params, 'q_vote_down', -1);
+					$this->UpdateVote('q_vote_down', $postid,$userid, $params, 'q_vote_down', -1);
 					$dolog=false;
 					break;
 				case 'a_vote_down':
-					$this->UpdateVote('in_a_vote', $postid,$userid, $params, 'a_vote_down', -1);
+					$this->UpdateVote('a_vote_down', $postid,$userid, $params, 'a_vote_down', -1);
 					$dolog=false;
 					break;
 				case 'q_vote_nil':
-					$this->UpdateVote('in_q_vote', $postid,$userid, $params, 'q_vote_nil', 0);
+					$this->UpdateVote('q_vote_nil', $postid,$userid, $params, 'q_vote_nil', 0);
 					$dolog=false;
 					break;
 				case 'a_vote_nil':
-					$this->UpdateVote('in_a_vote', $postid,$userid, $params, 'a_vote_nil', 0);
+					$this->UpdateVote('a_vote_nil', $postid,$userid, $params, 'a_vote_nil', 0);
 					$dolog=false;
 					break;
 				case 'q_approve':
@@ -124,27 +124,26 @@
 						$question = $this->GetQuestion($params);
 						$params['qtitle'] = $question['title'];
 						$params['qid'] = $question['postid'];
-					}else 
-						$dolog=false;
+						$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
+					}
 					break;					
 				case 'q_favorite':
-					$this->UpdateVote('in_q_vote', $postid,$userid, $params, 'favorite', 1);
+					$this->UpdateVote('q_favorite', $postid,$userid, $params, 'favorite', 1);
 					$dolog=false;					
 					break;
 				case 'q_unfavorite':
-					$this->UpdateVote('in_q_vote', $postid,$userid, $params, 'unfavorite', -1);
+					$this->UpdateVote('q_unfavorite', $postid,$userid, $params, 'unfavorite', -1);
 					$dolog=false;					
 					break;
 				case 'q_post':
 					if ($params['parent']['type']=='A') // related question
 					{
 						$effecteduserid = $params['parent']['userid'];
-						if ($loggeduserid != $effecteduserid)
+						if ($loggeduserid != $effecteduserid){
 							$event = 'related';
-						else
-							$dolog=false;
-					} else
-						$dolog=false;
+							$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
+						}
+					}
 					break;
 				case 'u_favorite':
 					$this->UpdateUserFavorite($postid,$userid, $params, 'u_favorite', 1);
@@ -160,16 +159,15 @@
 				case 'u_wall_post':
 					$effecteduserid = $params['userid'];
 					$params['message']=$params['content'];
+					$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
 					break;
 				case 'u_level':
 					$effecteduserid = $params['userid'];
+					$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
 					break;
 				default:
 					$dolog=false;
-				
-				if ($dolog){
-					$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
-				}
+			
 			}
 		}
 		function AddEvent($postid,$userid, $effecteduserid, $params, $event){
@@ -217,7 +215,7 @@
 				'SELECT params FROM ^userlog WHERE postid=$ AND event=$',
 				$postid, $newevent
 			));
-			qa_fatal_error(var_dump($effecteduserid));
+			
 			if (!isset($effecteduserid))
 				return; // post from anonymous user
 				
@@ -230,6 +228,7 @@
 					$params['newvotes']=$value;
 					
 					$params[$eventname]=1;
+					
 					$this->AddEvent($postid,$userid, $effecteduserid, $params, $newevent);
 				}
 			}else{
@@ -254,14 +253,16 @@
 							$params['a_vote_down']=(int)$postparams['a_vote_down']-1;
 						break;
 					}
-				}else{				
-					if (($eventname == 'favorite') || ($eventname == 'unfavorite'))
+				}else{
+					
+					if (isset($postparams[$eventname]) && (($eventname == 'favorite') || ($eventname == 'unfavorite')))
 						$params[$eventname]=(int)$postparams[$eventname]+$value;
 					else{
 						$params[$eventname]=(int)$postparams[$eventname]+1;
 						$params['newvotes']=(int)$postparams['newvotes']+$value;
 					}
 				}
+	
 				foreach ($postparams as $key => $value)
 					if (!isset($params[$key]))
 						$params[$key] = $value;
@@ -345,14 +346,8 @@
 		function GetUseridFromPost($postid)
 		{
 			
-			$uid = qa_db_read_one_value(
-				qa_db_query_sub(
-					'SELECT userid FROM ^posts WHERE postid=#',
-					$postid
-				),true
-			);
-			qa_fatal_error(var_dump($uid));
-			return $uid;
+			return qa_db_read_one_value(qa_db_query_sub('SELECT userid FROM ^posts WHERE postid=#', $postid ),true);
+			
 		}
 	}
 	

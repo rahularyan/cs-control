@@ -20,13 +20,24 @@ class qa_html_theme_layer extends qa_html_theme_base {
 					<div class="user-actions pull-right">
 						<div class="activity-bar">
 							<div class="button dropdown">
-								<a href="' . qa_path_html('user/' . $handle . '/activity') . '" class=" icon-flag2 dropdown-toggle activitylist" data-toggle="dropdown" id="activitylist"></a>
-								<div class="dropdown-menu activity-dropdown-list" id="activity-dropdown-list pull-right"></div>
+								<a href="' . qa_path_html('user/' . $handle . '/activity') . '" class=" icon-bell dropdown-toggle activitylist" data-toggle="dropdown" id="activitylist"><span>5</span></a>
+								<div class="dropdown-menu activity-dropdown-list pull-right" id="activity-dropdown-list pull-right">
+									<div class="bar">
+										<span>'.qa_lang_html('cleanstrap/notifications').'</span>
+										<a href="#">'.qa_lang('cleanstrap/mark_all_as_read').'</a>
+									</div>
+									<div class="append">
+										<span class="loading"></span>
+									</div>
+									
+									<a class="event-footer" href="#">'.qa_lang('cleanstrap/see_all').'</a>
+									
+								</div>
 							</div>
 						</div>
 						<div class="message-bar">
 							<div class="button dropdown">
-								<a href="' . qa_path_html('message/' . $handle ) . '" class="icon-envelope dropdown-toggle messagelist" data-toggle="dropdown" id="messagelist"></a>
+								<a href="' . qa_path_html('message/' . $handle ) . '" class="icon-mail dropdown-toggle messagelist" data-toggle="dropdown" id="messagelist"><span>5</span></a>
 								<ul class="dropdown-menu message-dropdown-list pull-right" id="message-dropdown-list"></ul>
 							</div>
 						</div>

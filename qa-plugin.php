@@ -20,6 +20,7 @@ if (!defined('QA_VERSION')) { // don't allow this page to be requested directly 
 
 define('CS_CONTROL_DIR', dirname( __FILE__ ));
 define('CS_CONTROL_URL', get_base_url().'/qa-plugin/cs-control');
+define('CS_THEME_URL', get_base_url().'/qa-theme/cleanstrap');
 define('CS_THEME_DIR', QA_THEME_DIR . '/cleanstrap');
 
 // register plugin language

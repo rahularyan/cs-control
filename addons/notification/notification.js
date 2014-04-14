@@ -11,7 +11,7 @@ $(document).ready(function(){
 			dataType: 'html',
 			context: this,
 			success: function (response) {
-				$('.activity-dropdown-list').html(response);
+				$('.activity-dropdown-list .append').html(response);
 			},
 		});
 	});
