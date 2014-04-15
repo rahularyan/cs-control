@@ -35,7 +35,7 @@ function cs_ajax_activitylist(){
 	$userid = qa_get_logged_in_userid();
 	$eventslist = qa_db_read_all_assoc(
 		qa_db_query_sub( 
-			'SELECT UNIX_TIMESTAMP(datetime) AS datetime, userid, postid, effecteduserid, event, params FROM ^userlog WHERE effecteduserid=# ORDER BY datetime DESC',
+			'SELECT id, UNIX_TIMESTAMP(datetime) AS datetime, userid, postid, effecteduserid, event, params, `read` FROM ^ra_userevent WHERE effecteduserid=# ORDER BY datetime DESC LIMIT 15',
 			$userid 
 		)
 	);
@@ -61,16 +61,21 @@ function cs_ajax_activitylist(){
 		$link='';
 		$vote_status = '';
 		$handle = $handles[$event['userid']];
-		$user_link = qa_path('user/'.$handle);
+		
 		$datetime = $event['datetime'];
 		$event['date'] = qa_html(qa_time_to_string(qa_opt('db_time')-$datetime));
 		$event['params'] = json_decode($event['params'],true);
-
+		$id = ' data-id="'.$event['id'].'"';
+		$read = $event['read'] ? ' read' : ' unread';
+		
+		$url_param = array('ra_notification' => $event['id']);
+		$user_link = qa_path_html('user/'.$handle, $url_param, qa_opt('site_url'));
+		
 		switch($event['event']){
 			case 'related': // related question to an answer
-				$url = qa_path_html(qa_q_request($event['postid'], $event['params']['title']), null, qa_opt('site_url'),null,null);
+				$url = qa_path_html(qa_q_request($event['postid'], $event['params']['title']), $url_param, qa_opt('site_url'),null,null);
 							
-				echo '<div class="event-content clearfix">
+				echo '<div class="event-content clearfix'.$read.''.$read.'"'.$id.'>
 						<div class="avatar"><a href="'.$user_link.'">'.cs_get_avatar($handle, 32, true).'</a></div>
 						<div class="event-right">
 							<a href="'.$url.'">
@@ -90,11 +95,11 @@ function cs_ajax_activitylist(){
 				break;
 			case 'a_post': // user's question had been answered
 				$anchor = qa_anchor('A', $event['postid']);
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null,$anchor);
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,$anchor);
 				
 				$title = cs_truncate($event['params']['qtitle'], 60);
 				
-				echo '<div class="event-content clearfix">
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
 						<div class="avatar"><a href="'.$user_link.'">'.cs_get_avatar($handle, 32, true).'</a></div>
 						<div class="event-right">
 							<a href="'.$url.'">
@@ -114,7 +119,7 @@ function cs_ajax_activitylist(){
 				break;
 			case 'c_post': // user's question had been commented
 				$anchor = qa_anchor('C', $event['postid']);
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null,$anchor);
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,$anchor);
 				
 				$title = cs_truncate($event['params']['qtitle'], 60);
 				
@@ -125,7 +130,7 @@ function cs_ajax_activitylist(){
 				else
 					$type =	qa_lang_html('cleanstrap/comment');
 				
-				echo '<div class="event-content clearfix">
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
 						<div class="avatar"><a href="'.$user_link.'">'.cs_get_avatar($handle, 32, true).'</a></div>
 						<div class="event-right">
 							<a href="'.$url.'">
@@ -144,9 +149,9 @@ function cs_ajax_activitylist(){
 
 				break;
 			case 'q_reshow': 
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null,null);
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,null);
 				
-				echo '<div class="event-content clearfix">
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
 						<div class="avatar"><a class="icon icon-eye-open" href="'.$url.'"></a></div>
 						<div class="event-right">
 							<a href="'.$url.'">
@@ -165,9 +170,9 @@ function cs_ajax_activitylist(){
 				break;
 			case 'a_reshow': // user's question had been answered
 				$anchor = qa_anchor('A', $event['postid']);
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null,$anchor);
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,$anchor);
 				
-				echo '<div class="event-content clearfix">
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
 						<div class="avatar"><a class="icon icon-eye-open" href="'.$url.'"></a></div>
 						<div class="event-right">
 							<a href="'.$url.'">
@@ -186,9 +191,9 @@ function cs_ajax_activitylist(){
 				break;
 			case 'c_reshow': // user's question had been answered
 				$anchor = qa_anchor('C', $event['postid']);
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null,$anchor);
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,$anchor);
 				
-				echo '<div class="event-content clearfix">
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
 						<div class="avatar"><a class="icon icon-eye-open" href="'.$url.'"></a></div>
 						<div class="event-right">
 							<a href="'.$url.'">
@@ -207,8 +212,8 @@ function cs_ajax_activitylist(){
 				break;
 			case 'a_select':
 				$anchor = qa_anchor('A', $event['postid']);
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null,$anchor);
-				echo '<div class="event-content clearfix">
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,$anchor);
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
 						<div class="avatar"><a href="'.$user_link.'">'.cs_get_avatar($handle, 32, true).'</a></div>
 						<div class="event-right">
 							<a href="'.$url.'">
@@ -228,10 +233,10 @@ function cs_ajax_activitylist(){
 				break;
 			case 'q_vote_up': 
 				
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null);
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null);
 				
 				$title = cs_truncate($event['params']['qtitle'], 60);
-				echo '<div class="event-content clearfix">
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
 						<div class="avatar"><a href="'.$user_link.'">'.cs_get_avatar($handle, 32, true).'</a></div>
 						<div class="event-right">
 							<a href="'.$url.'">
@@ -252,9 +257,9 @@ function cs_ajax_activitylist(){
 				break;
 			case 'a_vote_up': 
 				$anchor = qa_anchor('A', $event['postid']);
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null,$anchor);
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,$anchor);
 			
-				echo '<div class="event-content clearfix">
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
 						<div class="avatar"><a href="'.$user_link.'">'.cs_get_avatar($handle, 32, true).'</a></div>
 						<div class="event-right">
 							<a href="'.$url.'">
@@ -275,9 +280,9 @@ function cs_ajax_activitylist(){
 				break;
 			case 'q_approve':
 				
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null);
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null);
 				
-				echo '<div class="event-content clearfix">
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
 						<div class="avatar"><a class="icon icon-checkmark3" href="'.$url.'"></a></div>
 						<div class="event-right">
 							<a href="'.$url.'">
@@ -287,7 +292,6 @@ function cs_ajax_activitylist(){
 									<strong class="where">'.qa_lang_html('cleanstrap/question').'</strong>
 								</div>
 								<div class="footer">
-									<span class="points">'.qa_lang_sub('cleanstrap/you_have_earned_x_points', $event_point['a_vote_up']).'</span>
 									<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
 								</div>
 							</a>
@@ -297,9 +301,9 @@ function cs_ajax_activitylist(){
 				break;
 			case 'a_approve':
 				$anchor = qa_anchor('A', $event['postid']);
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null,$anchor);
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,$anchor);
 				
-				echo '<div class="event-content clearfix">
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
 						<div class="avatar"><a class="icon icon-checkmark3" href="'.$url.'"></a></div>
 						<div class="event-right">
 							<a href="'.$url.'">
@@ -309,7 +313,6 @@ function cs_ajax_activitylist(){
 									<strong class="where">'.qa_lang_html('cleanstrap/answer').'</strong>
 								</div>
 								<div class="footer">
-									<span class="points">'.qa_lang_sub('cleanstrap/you_have_earned_x_points', $event_point['a_vote_up']).'</span>
 									<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
 								</div>
 							</a>
@@ -318,18 +321,54 @@ function cs_ajax_activitylist(){
 				
 				break;
 			case 'u_favorite': 
-				echo '<div class="event-content clearfix">
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
 						<div class="avatar"><a href="'.$user_link.'">'.cs_get_avatar($handle, 32, true).'</a></div>
 						<div class="event-right">
-							<a href="'.$url.'">
+							<a href="'.$user_link.'">
 								<div class="head">
 									<strong class="user">'.$handle.'</strong>
 									<span class="what">'.qa_lang_html('cleanstrap/added_you_to').'</span>
 									<strong class="where">'.qa_lang_html('cleanstrap/favourite').'</strong>
 								</div>
 								<div class="footer">
-									<span class="event-icon icon-heart"></span>
-									<span class="points">'.qa_lang_sub('cleanstrap/you_have_earned_x_points', $event_point['a_vote_up']).'</span>
+									<span class="event-icon icon-heart"></span>									
+									<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
+								</div>
+							</a>
+						</div>
+					</div>';
+				break;
+			
+			case 'q_favorite': 
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
+						<div class="avatar"><a href="'.$user_link.'">'.cs_get_avatar($handle, 32, true).'</a></div>
+						<div class="event-right">
+							<a href="'.$user_link.'">
+								<div class="head">
+									<strong class="user">'.$handle.'</strong>
+									<span class="what">'.qa_lang_html('cleanstrap/added_your_question_to').'</span>
+									<strong class="where">'.qa_lang_html('cleanstrap/favourite').'</strong>
+								</div>
+								<div class="footer">
+									<span class="event-icon icon-heart"></span>									
+									<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
+								</div>
+							</a>
+						</div>
+					</div>';
+				break;
+			case 'q_vote_down': 
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null);
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
+						<div class="avatar"><a class="icon icon-thumbs-down2" href="'.$url.'"></a></div>
+						<div class="event-right">
+							<a href="'.$url.'">
+								<div class="head">
+									<span class="what">'.qa_lang_html('cleanstrap/you_have_received_down_vote').'</span>
+									<strong class="where">'.qa_lang_html('cleanstrap/question').'</strong>
+								</div>
+								<div class="footer">
+									<span class="points">'.qa_lang_sub('cleanstrap/you_have_lost_x_points', $event_point['q_vote_down']).'</span>
 									<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
 								</div>
 							</a>
@@ -338,8 +377,8 @@ function cs_ajax_activitylist(){
 				break;
 			case 'c_approve':
 				$anchor = qa_anchor('C', $event['postid']);
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null,$anchor);
-				echo '<div class="event-content clearfix">
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,$anchor);
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
 						<div class="avatar"><a class="icon icon-checkmark3" href="'.$url.'"></a></div>
 						<div class="event-right">
 							<a href="'.$url.'">
@@ -348,8 +387,7 @@ function cs_ajax_activitylist(){
 									<span class="what">'.qa_lang_html('cleanstrap/approved_your').'</span>
 									<strong class="where">'.qa_lang_html('cleanstrap/comment').'</strong>
 								</div>
-								<div class="footer">
-									<span class="points">'.qa_lang_sub('cleanstrap/you_have_earned_x_points', $event_point['a_vote_up']).'</span>
+								<div class="footer">									
 									<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
 								</div>
 							</a>
@@ -358,35 +396,75 @@ function cs_ajax_activitylist(){
 				break;
 			case 'q_reject':
 	
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null);
-				
-				$title = cs_truncate($event['params']['qtitle'], 60);
-				
-				cs_notification_event_item($event, $handle, qa_lang_html('cleanstrap/your_question_is_rejected') , $url, $title);
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null);
+	
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
+						<div class="avatar"><a class="icon icon-cross" href="'.$url.'"></a></div>
+						<div class="event-right">
+							<a href="'.$url.'">
+								<div class="head">
+									<strong class="user">'.$handle.'</strong>
+									<span class="what">'.qa_lang_html('cleanstrap/your_question_is_rejected').'</span>
+								</div>
+								<div class="footer">
+									<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
+								</div>
+							</a>
+						</div>
+					</div>';
 		
 				break;
 			case 'a_reject':
 				$anchor = qa_anchor('A', $event['postid']);
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null, $anchor);
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null, $anchor);
 				
-				$title = cs_truncate($event['params']['qtitle'], 60);
-				
-				cs_notification_event_item($event, $handle, qa_lang_html('cleanstrap/your_answer_is_rejected') , $url, $title);
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
+						<div class="avatar"><a class="icon icon-cross" href="'.$url.'"></a></div>
+						<div class="event-right">
+							<a href="'.$url.'">
+								<div class="head">
+									<strong class="user">'.$handle.'</strong>
+									<span class="what">'.qa_lang_html('cleanstrap/your_answer_is_rejected').'</span>
+								</div>
+								<div class="footer">									
+									<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
+								</div>
+							</a>
+						</div>
+					</div>';
 				break;
 			case 'c_reject':
 				$anchor = qa_anchor('C', $event['postid']);
-				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), null, qa_opt('site_url'),null, $anchor);
-				
-				$title = cs_truncate($event['params']['qtitle'], 60);
-				
-				cs_notification_event_item($event, $handle, qa_lang_html('cleanstrap/your_comment_is_rejected') , $url, $title);
+				$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null, $anchor);
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
+						<div class="avatar"><a class="icon icon-cross" href="'.$url.'"></a></div>
+						<div class="event-right">
+							<a href="'.$url.'">
+								<div class="head">
+									<strong class="user">'.$handle.'</strong>
+									<span class="what">'.qa_lang_html('cleanstrap/your_comment_is_rejected').'</span>
+								</div>
+								<div class="footer">									
+									<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
+								</div>
+							</a>
+						</div>
+					</div>';
 				break;
 			case 'u_level':
-				echo '<div class="event-content">
-						<div class="avatar">' . cs_get_avatar($handle, 30, true) . '</div>
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
+						<div class="avatar"><a class="icon icon-user" href="'.$url.'"></a></div>
 						<div class="event-right">
-									<p class="what">You level had been changed from' . qa_html(qa_user_level_string($event['params']['oldlevel'])) . ' to ' . qa_html(qa_user_level_string($event['params']['level'])) . '</p>
-								<span class="date"> ' . $event['date'] . '</span>
+							<a href="'.$url.'">
+								<div class="head">
+									<strong class="user">'.$handle.'</strong>
+									<span class="what">'.qa_lang_html('cleanstrap/your_question_is_rejected').'</span>
+								</div>
+								<div class="footer">
+									<span class="points">'.qa_lang_sub('cleanstrap/you_have_earned_x_points', $event_point['a_vote_up']).'</span>
+									<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
+								</div>
+							</a>
 						</div>
 					</div>';
 				break;
@@ -397,6 +475,7 @@ function cs_ajax_activitylist(){
 	die();
 }
 function cs_ajax_messagelist(){
+
 	require_once QA_INCLUDE_DIR.'qa-db-users.php';
 	// Get Events
 	$message_events = array(
@@ -407,16 +486,12 @@ function cs_ajax_messagelist(){
 	$userid = qa_get_logged_in_userid();
 	$eventslist = qa_db_read_all_assoc(
 		qa_db_query_sub(
-			'SELECT UNIX_TIMESTAMP(datetime) AS datetime, userid, postid, effecteduserid, event, params FROM ^userlog WHERE effecteduserid=# AND 
-			DATE_SUB(CURDATE(),INTERVAL # DAY) <= datetime AND
-			event IN (' . $events .')
-			ORDER BY datetime DESC'.(qa_opt('qat_activity_number')?' LIMIT '.(int)qa_opt('qat_activity_number'):''),
-			$userid, qa_opt('qat_activity_age')
+			'SELECT id, UNIX_TIMESTAMP(datetime) AS datetime, userid, postid, effecteduserid, event, params, `read` FROM ^ra_userevent WHERE `read`=0 AND effecteduserid=# AND event IN (' . $events .') ORDER BY datetime DESC',
+			$userid
 		)
 	);
 	$event = array();
-	$output='';
-	//
+
 	$userids = array();
 	foreach ($eventslist as $event){
 		$userids[$event['userid']]=$event['userid'];
@@ -432,55 +507,110 @@ function cs_ajax_messagelist(){
 		$title='';
 		$link='';
 		$handle = $handles[$event['userid']];
-		$user_link = qa_path('user/'.$handle);
+		
 		$reciever_handle = $handles[$event['effecteduserid']];
 		$reciever_link = qa_path('user/'.$reciever_handle);
 		$datetime = $event['datetime'];
 		$event['date'] = qa_html(qa_time_to_string(qa_opt('db_time')-$datetime));
 		$event['params'] = json_decode($event['params'],true);
 		$message = substr($event['params']['message'], 0, 20);
-		$output .='<li>';
+		$id = ' data-id="'.$event['id'].'"';
+		$read = $event['read'] ? ' read' : ' unread';
+		$url_param = array('ra_notification' => $event['id']);
+		$user_link = qa_path_html('user/'.$handle, $url_param);
+		
 		switch($event['event']){
 			case 'u_message': // related question to an answer
-				$url = qa_path_html(qa_path('message/' . $handle ));
-				$output .='<div class="event-icon pull-left icon-chat"></div>
-							<div class="event-content">
-								<p class="title"><strong class="avatar"><a href="' . $user_link . '">' . $handle . '</a></strong>
-								<span class="what">left you a message</span>
-								</p>
-								<a class="title" href="' . $url . '">'. $message . '</a>
-								<span class="date"> ' . $event['date'] . '</span>
-							</div>';						
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
+						<div class="avatar"><a href="'.$user_link.'">'.cs_get_avatar($handle, 32, true).'</a></div>
+						<div class="event-right">
+							<a href="'.qa_path_html('message/'.$handle, $url_param, qa_opt('site_url')).'">
+								<div class="head">
+									<strong class="user">'.$handle.'</strong>
+									<span class="what">'.qa_lang_html('cleanstrap/sent_you_a_private_message').'</span>
+									<span class="message">'.$message.'</span>
+								</div>
+								<div class="footer">
+									<span class="event-icon icon-mail"></span>
+									<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
+								</div>
+							</a>
+						</div>
+					</div>';						
 				break;
 			case 'u_wall_post': // user's question had been answered
-				$url = qa_path_html(qa_path('user/' . $reciever_handle . '/wall' ));
-				$output .='<div class="event-icon pull-left icon-chat"></div>
-							<div class="event-content">
-								<p class="title"><strong class="avatar"><a href="' . $user_link . '">' . $handle . '</a></strong>
-								<span class="what">posted a message on your wall</span>
-								</p>
-								<a class="title" href="' . $url . '">'. $message . '</a>
-								<span class="date"> ' . $event['date'] . '</span>
-							</div>';						
+				$url = qa_path_html('user/'.$reciever_handle.'/wall', $url_param, qa_opt('site_url'));
+				echo '<div class="event-content clearfix'.$read.'"'.$id.'>
+						<div class="avatar"><a href="'.$user_link.'">'.cs_get_avatar($handle, 32, true).'</a></div>
+						<div class="event-right">
+							<a href="'.$url.'">
+								<div class="head">
+									<strong class="user">'.$handle.'</strong>
+									<span class="what">'.qa_lang_html('cleanstrap/posted_on_your_wall').'</span>
+									<span class="message">'.$message.'</span>
+								</div>
+								<div class="footer">
+									<span class="event-icon icon-pin"></span>
+									<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
+								</div>
+							</a>
+						</div>
+					</div>';						
 				break;
 		}
-		$output .='</li>';
+
 	}
-	echo $output;
+
 	die();
 } 
 
 
-function cs_notification_event_item($event, $handle, $what, $url, $title){
-	$user_link = qa_path('user/'.$handle);
-	?>
-		<div class="event-content">
-			<div class="avatar"><a href="<?php echo $user_link; ?>"><?php echo cs_get_avatar($handle, 30, true); ?></a></div>
-			<div class="event-right">
-				<a class="user" href="<?php echo $user_link; ?>"><?php echo $handle; ?></a>
-				<a class="what" href="<?php echo $url; ?>"><?php echo $what; ?></a>
-				<span class="date"><?php echo $event['date']; ?></span>
-			</div>
-		</div>
-	<?php
+function cs_set_all_activity_as_read($uid){
+	qa_db_query_sub(
+		'UPDATE ^ra_userevent SET `read` = 1 WHERE effecteduserid=# AND event NOT IN ("u_wall_post", "u_message")',
+		$uid
+	);
+}
+function cs_set_all_messages_as_read($uid){
+	qa_db_query_sub(
+		'UPDATE ^ra_userevent SET `read` = 1 WHERE effecteduserid=# AND event IN ("u_wall_post", "u_message")',
+		$uid
+	);
+}
+function cs_get_total_activity($uid){
+	return qa_db_read_one_value(qa_db_query_sub(
+		'SELECT COUNT(*) FROM ^ra_userevent WHERE `read` = 0 AND effecteduserid=#  AND event NOT IN ("u_wall_post", "u_message")',
+		$uid
+	), true);
+}
+function cs_get_total_messages($uid){
+	return qa_db_read_one_value(qa_db_query_sub(
+		'SELECT COUNT(*) FROM ^ra_userevent WHERE `read` = 0 AND effecteduserid=#  AND event IN ("u_wall_post", "u_message")',
+		$uid
+	), true);
+}
+
+function cs_ajax_mark_all_activity(){
+	if(qa_is_logged_in())
+		cs_set_all_activity_as_read(qa_get_logged_in_userid());
+	
+	die();
+}
+function cs_ajax_mark_all_messages(){
+	if(qa_is_logged_in())
+		cs_set_all_messages_as_read(qa_get_logged_in_userid());
+	
+	die();
+}
+
+function cs_ajax_activity_count(){
+	echo cs_get_total_activity(qa_get_logged_in_userid());
+	
+	die();
+}
+
+function cs_ajax_messages_count(){
+	echo cs_get_total_messages(qa_get_logged_in_userid());
+	
+	die();
 }

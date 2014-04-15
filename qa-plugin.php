@@ -50,6 +50,7 @@ qa_register_plugin_module('widget', 'widgets/widget_scroller.php', 'cs_widget_sc
 
 qa_register_plugin_module('page', 'options.php', 'cs_theme_options', 'Theme Options');
 qa_register_plugin_module('page', 'widgets.php', 'cs_theme_widgets', 'Theme Widgets');
+qa_register_plugin_module('page', 'install.php', 'cs_theme_install_page', 'Theme Install Page');
 
 
 qa_register_plugin_layer('cs-layer.php', 'CS Control Layer');

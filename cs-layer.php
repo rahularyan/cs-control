@@ -181,5 +181,13 @@
         } else
             qa_html_theme_base::q_list_items($q_items);
     }
-		
+	
+	
+	function install_page(){
+		$content = $this->content;
+		$this->output('<div class="clearfix qa-main container ' . (@$this->content['hidden'] ? ' qa-main-hidden' : '') . '">');
+		$this->main_parts($content);
+		$this->output('</div>');
+		$this->output('<div class="install-footer">Copyright &copy; RahulAryan</div>');
 	}
+}

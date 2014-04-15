@@ -118,6 +118,13 @@
 		'is_visible' => 'is visible to everyone',
 		'comment' => 'comment',
 		'approved_your' => 'approved your',
+		'sent_you_a_private_message' => 'sent you a private message',
+		'posted_on_your_wall' => 'posted on your wall',
+		'messages' => 'Messages',
+		'no-activity' => 'Hoory! everything is clear',
+		'added_your_question_to' => 'added your question to',
+		'you_have_received_down_vote' => 'You have received a down vote on your',
+		'you_have_lost_x_points' => 'you have lost ^ points',
 	);
 	
 

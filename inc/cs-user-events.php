@@ -71,7 +71,7 @@
 					$post = qa_post_get_full($postid);
 					$effecteduserid = $post['userid'];
 					qa_db_query_sub(
-						"DELETE FROM ^userlog WHERE effecteduserid=$ AND event=$ AND postid=$",
+						"DELETE FROM ^ra_userevent WHERE effecteduserid=$ AND event=$ AND postid=$",
 						$effecteduserid, 'a_select', $postid
 					);
 					
@@ -131,10 +131,10 @@
 					$this->UpdateVote('q_favorite', $postid,$userid, $params, 'favorite', 1);
 					$dolog=false;					
 					break;
-				case 'q_unfavorite':
+				/* case 'q_unfavorite':
 					$this->UpdateVote('q_unfavorite', $postid,$userid, $params, 'unfavorite', -1);
 					$dolog=false;					
-					break;
+					break; */
 				case 'q_post':
 					if ($params['parent']['type']=='A') // related question
 					{
@@ -149,12 +149,13 @@
 					$this->UpdateUserFavorite($postid,$userid, $params, 'u_favorite', 1);
 					$dolog=false;
 					break;
-				case 'u_unfavorite':
-					$this->UpdateUserFavorite($postid,$userid, $params, 'u_favorite', -1);
+				/* case 'u_unfavorite':
+					$this->UpdateUserFavorite($postid,$userid, $params, 'u_unfavorite', -1);
 					$dolog=false;
-					break;
+					break; */
 				case 'u_message':
 					$effecteduserid = $params['userid'];
+					$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
 					break;
 				case 'u_wall_post':
 					$effecteduserid = $params['userid'];
@@ -173,7 +174,7 @@
 		function AddEvent($postid,$userid, $effecteduserid, $params, $event){
 			$paramstring = $this->ParamToString($params);
 			qa_db_query_sub(
-				'INSERT INTO ^userlog (datetime, userid, effecteduserid, postid, event, params) '.
+				'INSERT INTO ^ra_userevent (datetime, userid, effecteduserid, postid, event, params) '.
 				'VALUES (NOW(), $, $, $, $, $)',
 				$userid, $effecteduserid, $postid, $event, $paramstring
 			);
@@ -182,7 +183,7 @@
 		function UpdateUserFavorite($postid,$userid, $params, $event, $value){
 			$effecteduserid = $params['userid'];
 			$posts = qa_db_read_all_values(qa_db_query_sub(
-				'SELECT params FROM ^userlog WHERE effecteduserid=$ AND event=$',
+				'SELECT params FROM ^ra_userevent WHERE effecteduserid=$ AND event=$',
 				$effecteduserid, 'u_favorite'
 			));
 			if (count($posts) == 0 ){
@@ -196,12 +197,12 @@
 				if ( ($params['favorited'])>=1 ){
 					$paramstring = $this->ParamToString($params);
 					qa_db_query_sub(
-						"UPDATE ^userlog SET datetime=NOW(), userid=$, effecteduserid=$, postid=NULL, event=$, params=$ WHERE effecteduserid=$ AND event=$",
+						"UPDATE ^ra_userevent SET datetime=NOW(), userid=$, effecteduserid=$, postid=NULL, event=$, params=$ WHERE effecteduserid=$ AND event=$",
 						$userid, $effecteduserid, $event,$paramstring, $effecteduserid, $event
 					);
 				}else{
 					qa_db_query_sub(
-						"DELETE FROM ^userlog WHERE effecteduserid=$ AND event=$",
+						"DELETE FROM ^ra_userevent WHERE effecteduserid=$ AND event=$",
 						$effecteduserid, 'u_favorite'
 					);
 				}
@@ -212,7 +213,7 @@
 		{
 			$effecteduserid = $this->GetUseridFromPost($postid);
 			$posts = qa_db_read_all_values(qa_db_query_sub(
-				'SELECT params FROM ^userlog WHERE postid=$ AND event=$',
+				'SELECT params FROM ^ra_userevent WHERE postid=$ AND event=$',
 				$postid, $newevent
 			));
 			
@@ -269,7 +270,7 @@
 				//qa_fatal_error(var_dump($postparams));
 				$paramstring = $this->ParamToString($params);
 				qa_db_query_sub(
-					"UPDATE ^userlog SET datetime=NOW(), userid=$, effecteduserid=$, postid=$, event=$, params=$ WHERE postid=$ AND event=$",
+					"UPDATE ^ra_userevent SET datetime=NOW(), userid=$, effecteduserid=$, postid=$, event=$, params=$ WHERE postid=$ AND event=$",
 					$userid, $effecteduserid, $postid, $newevent,$paramstring, $postid, $newevent
 				);
 			}
