@@ -34,6 +34,7 @@ class qa_html_theme_layer extends qa_html_theme_base {
 										<a class="mark-activity" href="#" data-id="'.qa_get_logged_in_userid().'">'.qa_lang('cleanstrap/mark_all_as_read').'</a>
 									</div>
 									<div class="append">
+										<div class="ajax-list"></div>
 										<span class="loading"></span>
 										<div class="no-activity icon-signal">'.qa_lang('cleanstrap/no-activity').'</div>
 									</div>
@@ -43,7 +44,7 @@ class qa_html_theme_layer extends qa_html_theme_base {
 								</div>
 							</div>
 						</div>
-						<div class="user-actions pull-right">
+						
 						<div class="message-bar">
 							<div class="button dropdown">
 								<a href="' . qa_path_html('user/' . $handle . '/message') . '" class=" icon-mail dropdown-toggle messagelist" data-toggle="dropdown" id="messagelist"></a>
@@ -53,6 +54,7 @@ class qa_html_theme_layer extends qa_html_theme_base {
 										<a class="mark-messages" href="#">'.qa_lang('cleanstrap/mark_all_as_read').'</a>
 									</div>
 									<div class="append">
+										<div class="ajax-list"></div>
 										<span class="loading"></span>
 										<div class="no-activity icon-signal">'.qa_lang('cleanstrap/no-activity').'</div>
 									</div>
@@ -81,9 +83,10 @@ class qa_html_theme_layer extends qa_html_theme_base {
 }
 
 function cs_set_notification_as_read($id){
-	qa_db_query_sub(
-		'UPDATE ^ra_userevent SET `read` = 1 WHERE id=#',
-		$id
-	);
+	if(qa_is_logged_in())
+		qa_db_query_sub(
+			'UPDATE ^ra_userevent SET `read` = 1 WHERE id=# AND effecteduserid=#',
+			(int)$id, qa_get_logged_in_userid()
+		);
 }
 

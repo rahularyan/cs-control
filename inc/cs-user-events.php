@@ -8,7 +8,7 @@
 			$loggeduserid = qa_get_logged_in_userid();
 			$dolog=true;
 			$postid = @$params['postid'];
-			
+			//qa_fatal_error(var_dump($params));
 			switch($event){
 				case 'a_post': // user's question had been answered
 					
@@ -21,13 +21,27 @@
 					}
 					break;
 				case 'c_post': // user's answer had been commented
+					
+					$question = $this->GetQuestion($params);
+					$params['qtitle'] = $question['title'];
+					$params['qid'] = $question['postid'];
+					$thread = $params['thread'];
+					unset($params['thread']);
 					if ($loggeduserid != $params['parent']['userid']){
-						$effecteduserid = $params['parent']['userid'];
-						$question = $this->GetQuestion($params);
-						$params['qtitle'] = $question['title'];
-						$params['qid'] = $question['postid'];
-						$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
+						$this->AddEvent($postid, $userid, $params['parent']['userid'], $params, $event);
 					}
+					
+					if(count($thread) > 0){
+						$user_array = array();
+						foreach ($thread as $t){
+							if ($loggeduserid != $t['userid'])
+								$user_array[] = $t['userid'];
+						}
+						$user_array = array_unique($user_array, SORT_REGULAR);
+						foreach ($user_array as $user){		
+							$this->AddEvent($postid, $userid, $user, $params, $event);		
+						}
+					}			
 					break;
 				case 'q_reshow':				
 					require_once QA_INCLUDE_DIR.'qa-app-posts.php';
@@ -279,6 +293,7 @@
 		function ParamToString($params)
 		{
 			if (isset($params)){
+				$params['parent_uid'] = $params['parent']['userid'];
 				unset($params['content']);
 				unset($params['question']);
 				unset($params['answer']);

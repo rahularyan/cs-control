@@ -13,9 +13,9 @@
 					'datetime DATETIME NOT NULL,'.
 					'userid '.qa_get_mysql_user_column_type().','.
 					'postid int(10) unsigned DEFAULT NULL,'.
-					'effecteduserid '.qa_get_mysql_user_column_type().','.
-					'event VARCHAR (20) CHARACTER SET ascii NOT NULL,'.
-					'params VARCHAR (1200) NOT NULL,'.
+					'effecteduserid '.qa_get_mysql_user_column_type().' unsigned DEFAULT NULL,'.
+					'event VARCHAR (20) CHARACTER SET utf8 NOT NULL,'.
+					'params text NOT NULL,'.
 					'`read` tinyint(1) NOT NULL DEFAULT "0",'.
 					'PRIMARY KEY (id),'.
 					'KEY datetime (datetime),'.

@@ -125,6 +125,9 @@
 		'added_your_question_to' => 'added your question to',
 		'you_have_received_down_vote' => 'You have received a down vote on your',
 		'you_have_lost_x_points' => 'you have lost ^ points',
+		'no_more_activity' => 'No more activity to load!',
+		'followup_comment' => 'added a follow up',
+		'no_more_messages' => 'No more message to load!',
 	);
 	
 

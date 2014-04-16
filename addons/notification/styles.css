@@ -1,14 +1,20 @@
-.user-actions{
+/*! perfect-scrollbar - v0.4.9
+* http://noraesae.github.com/perfect-scrollbar/
+* Copyright (c) 2014 Hyeonje Jun; Licensed MIT */
 
-}
-.user-actions > div{
+.ps-container .ps-scrollbar-x-rail{position:absolute;bottom:3px;height:8px;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;opacity:0;filter:alpha(opacity=0);-o-transition:background-color .2s linear,opacity .2s linear;-webkit-transition:background-color .2s linear,opacity .2s linear;-moz-transition:background-color .2s linear,opacity .2s linear;transition:background-color .2s linear,opacity .2s linear}.ps-container:hover .ps-scrollbar-x-rail,.ps-container.hover .ps-scrollbar-x-rail{opacity:.6;filter:alpha(opacity=60)}.ps-container .ps-scrollbar-x-rail:hover,.ps-container .ps-scrollbar-x-rail.hover{background-color:#eee;opacity:.9;filter:alpha(opacity=90)}.ps-container .ps-scrollbar-x-rail.in-scrolling{opacity:.9;filter:alpha(opacity=90)}.ps-container .ps-scrollbar-y-rail{position:absolute;right:3px;width:8px;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;opacity:0;filter:alpha(opacity=0);-o-transition:background-color .2s linear,opacity .2s linear;-webkit-transition:background-color .2s linear,opacity .2s linear;-moz-transition:background-color .2s linear,opacity .2s linear;transition:background-color .2s linear,opacity .2s linear}.ps-container:hover .ps-scrollbar-y-rail,.ps-container.hover .ps-scrollbar-y-rail{opacity:.6;filter:alpha(opacity=60)}.ps-container .ps-scrollbar-y-rail:hover,.ps-container .ps-scrollbar-y-rail.hover{background-color:#eee;opacity:.9;filter:alpha(opacity=90)}.ps-container .ps-scrollbar-y-rail.in-scrolling{opacity:.9;filter:alpha(opacity=90)}.ps-container .ps-scrollbar-x{position:absolute;bottom:0;height:8px;background-color:#aaa;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;-o-transition:background-color .2s linear;-webkit-transition:background-color.2s linear;-moz-transition:background-color .2s linear;transition:background-color .2s linear}.ps-container.ie6 .ps-scrollbar-x{font-size:0}.ps-container .ps-scrollbar-x-rail:hover .ps-scrollbar-x,.ps-container .ps-scrollbar-x-rail.hover .ps-scrollbar-x{background-color:#999}.ps-container .ps-scrollbar-y{position:absolute;right:0;width:8px;background-color:#aaa;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;-o-transition:background-color .2s linear;-webkit-transition:background-color.2s linear;-moz-transition:background-color .2s linear;transition:background-color .2s linear}.ps-container.ie6 .ps-scrollbar-y{font-size:0}.ps-container .ps-scrollbar-y-rail:hover .ps-scrollbar-y,.ps-container .ps-scrollbar-y-rail.hover .ps-scrollbar-y{background-color:#999}.ps-container.ie .ps-scrollbar-x,.ps-container.ie .ps-scrollbar-y{visibility:hidden}.ps-container.ie:hover .ps-scrollbar-x,.ps-container.ie:hover .ps-scrollbar-y,.ps-container.ie.hover .ps-scrollbar-x,.ps-container.ie.hover .ps-scrollbar-y{visibility:visible}
+
+.user-actions > div {
     display: block;
     float: left;
 }
-.user-actions .dropdown-toggle{
+
+.user-actions .dropdown-toggle {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0.1);
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
     border-radius: 2px;
-    color: #EEEEEE;
+    color: #EEE;
     display: block;
     font-size: 18px;
     height: 35px;
@@ -17,34 +23,43 @@
     text-align: center;
     width: 35px;
 }
-.user-actions .open .dropdown-toggle{
-    background: none repeat scroll 0 0 #FFFFFF;
-    color: #666666;
+
+.user-actions .open .dropdown-toggle {
+    background: none repeat scroll 0 0 #FFF;
+    color: #666;
     position: relative;
     z-index: 9999;
 }
-.user-actions .dropdown-menu{
+
+.user-actions .dropdown-menu {
     border: medium none;
+    -moz-box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
     margin-top: 10px;
     padding: 0;
     width: 320px;
 }
+
 .event-content:last-child {
     border-bottom: medium none;
 }
+
 .event-content:hover:last-child {
     border-bottom: medium none;
 }
+
 .event-content {
-	background:#F6FDFF;
+    background: #F6FDFF;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     line-height: 18px;
     padding: 10px;
 }
-.event-content.read{
-	background:#fff;
+
+.event-content.read {
+    background: #fff;
 }
+
 .event-content:hover {
     background: #ecfbff;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -55,90 +70,110 @@
     margin-right: 10px;
     margin-top: 6px;
 }
-.event-content .avatar .icon{
-	font-size: 20px;
-	background: #EE444B;
-	color: #fff;
-	width: 32px;
-	display: block;
-	height: 32px;
-	text-align: center;
-	line-height: 32px;
-	border-radius: 2px;
-	margin-top: -3px;
+
+.event-content .avatar .icon {
+    font-size: 20px;
+    background: #EE444B;
+    color: #fff;
+    width: 32px;
+    display: block;
+    height: 32px;
+    text-align: center;
+    line-height: 32px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    margin-top: -3px;
 }
+
 .event-right {
     font-size: 13px;
     overflow: hidden;
 }
-.event-right .user{
+
+.event-right .user {
     margin: 0;
 }
-.event-right > a {
-    color: #555555;
-}
-.event-right .date{
 
+.event-right > a {
+    color: #555;
 }
+
 .event-content .head {
     margin-bottom: 2px;
 }
+
 .event-right .title {
     display: block;
     margin-bottom: 2px;
 }
+
 .event-content .message {
-    color: #999999;
+    color: #999;
     display: block;
     margin-top: 4px;
 }
+
 .event-right .footer {
-    color: #888888;
+    color: #888;
     font-size: 11px;
 }
+
 .event-right .event-icon {
     color: #EE444B;
     font-size: 14px;
     margin-right: 5px;
     padding: 0;
 }
+
 .event-right .points {
     margin-right: 5px;
 }
+
 .activity-bar .bar, .message-bar .bar {
-    background: linear-gradient(#FFFFFF, #D9D9D9) repeat scroll 0 0 #EEEEEE;
+    background: linear-gradient(#FFF, #D9D9D9) repeat scroll 0 0 #EEE;
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    -moz-border-radius: 3px 3px 0 0;
+    -webkit-border-radius: 3px 3px 0 0;
     border-radius: 3px 3px 0 0;
     color: #4E5C67;
     font-size: 12px;
     font-weight: bold;
     padding: 7px 10px;
 }
-.activity-bar .append, .message-bar .append{
+
+.activity-bar .append, .message-bar .append {
+    max-height: 300px;
     min-height: 100px;
-	position:relative;
+    overflow: hidden;
+    position: relative;
 }
-.activity-bar .loading, .message-bar .loading{
-    background: url("../../images/loading.png") no-repeat scroll center center rgba(0, 0, 0, 0);
+
+.activity-bar .loading, .message-bar .loading {
+    background: url(../../images/loading.png) no-repeat scroll center center rgba(0, 0, 0, 0);
     display: block;
     height: 100%;
     position: absolute;
     top: 0;
     width: 100%;
 }
+
 .event-footer {
     background: none repeat scroll 0 0 #FBFBFB;
     border-top: 1px solid rgba(0, 0, 0, 0.05);
-    color: #999999;
+    color: #999;
     display: block;
     font-size: 11px;
     padding: 2px;
     text-align: center;
 }
+
 .user-actions .dropdown-toggle > span {
     background: none repeat scroll 0 0 #FF1815;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
     border-radius: 50%;
-    color: #FFFFFF;
+    color: #FFF;
     display: block;
     font-size: 11px;
     font-weight: bold;
@@ -153,6 +188,10 @@
 
 .user-actions .dropdown-menu:before {
     border-color: rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) #fff;
+    -moz-border-image: none;
+    -ms-border-image: none;
+    -o-border-image: none;
+    -webkit-border-image: none;
     border-image: none;
     border-style: solid;
     border-width: 10px;
@@ -162,18 +201,27 @@
     right: 7px;
     top: -17px;
 }
+
 .activity-bar .bar > a, .message-bar .bar > a {
     float: right;
     font-size: 11px;
     font-weight: normal;
 }
+
 .no-activity {
     display: block;
     text-align: center;
 }
+
 .no-activity:before {
-    color: #AAAAAA;
+    color: #AAA;
     display: block;
     font-size: 65px;
     margin-top: 15px;
+}
+.no-more-activity {
+    color: #AAAAAA;
+    display: block;
+    padding: 10px;
+    text-align: center;
 }
