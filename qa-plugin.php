@@ -19,6 +19,7 @@ if (!defined('QA_VERSION')) { // don't allow this page to be requested directly 
 }
 
 define('CS_CONTROL_DIR', dirname( __FILE__ ));
+define('CS_CONTROL_ADDON_DIR', CS_CONTROL_DIR.'/addons');
 define('CS_CONTROL_URL', get_base_url().'/qa-plugin/cs-control');
 define('CS_THEME_URL', get_base_url().'/qa-theme/cleanstrap');
 define('CS_THEME_DIR', QA_THEME_DIR . '/cleanstrap');
@@ -114,10 +115,7 @@ function cs_load_addons(){
 	$addons = cs_read_addons();
 	if(!empty($addons))
 		foreach($addons as $addon){
-			if(isset($addon['type']) && $addon['type']=='layer' && isset($addon['file']) && isset($addon['class']) && isset($addon['name']))
-				qa_register_plugin_layer('addons/'.$addon['folder'].'/'.$addon['file'], $addon['name']);
-			elseif(isset($addon['type']) && isset($addon['file']) && isset($addon['class']) && isset($addon['name']))
-				qa_register_plugin_module($addon['type'], 'addons/'.$addon['folder'].'/'.$addon['file'], $addon['class'], $addon['name']);
+			include_once CS_CONTROL_DIR.'/addons/'.$addon['folder'].'/'.$addon['file'];
 		}
 }
 function cs_load_addons_ajax(){
