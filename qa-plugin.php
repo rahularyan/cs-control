@@ -19,22 +19,20 @@ if (!defined('QA_VERSION')) { // don't allow this page to be requested directly 
 }
 
 define('CS_CONTROL_DIR', dirname( __FILE__ ));
-if (!(defined(CS_THEME_DIR))){
-	define('CS_THEME_DIR', dirname(dirname(CS_CONTROL_DIR)). '/qa-theme/CleanStarp'  ); // add theme directory here
-}
+define('CS_CONTROL_URL', get_base_url().'/qa-plugin/cs-control');
+define('CS_THEME_URL', get_base_url().'/qa-theme/cleanstrap');
 define('CS_THEME_DIR', QA_THEME_DIR . '/cleanstrap');
 
+// register plugin language
+qa_register_plugin_phrases('language/cs-lang-*.php', 'cleanstrap');
 
-qa_register_plugin_module('page', 'options.php', 'cs_theme_options', 'Theme Options');
-qa_register_plugin_module('page', 'widgets.php', 'cs_theme_widgets', 'Theme Widgets');
-qa_register_plugin_layer('cs-layer.php', 'CS Control Layer');
+qa_register_plugin_module('event', 'inc/init.php', 'cs_init', 'CS Init');
+qa_register_plugin_module('event', 'inc/cs-user-events.php', 'cs_user_event_logger', 'CS User Event Logger');
 
 qa_register_plugin_module('widget', 'widgets/widget_ticker.php', 'cs_ticker_widget', 'CS Ticker');
 qa_register_plugin_module('widget', 'widgets/widget_activity.php', 'cs_activity_widget', 'CS Site Activity');
 qa_register_plugin_module('widget', 'widgets/widget_ask.php', 'cs_ask_widget', 'CS Ajax Ask');
-
-	//enable category widget only if category is active in q2a
-	//if ( qa_using_categories() )
+qa_register_plugin_module('widget', 'widgets/widget_ask_form.php', 'cs_ask_form_widget', 'CS Ask Form');
 qa_register_plugin_module('widget', 'widgets/widget_categories.php', 'widget_categories', 'CS Categories');
 qa_register_plugin_module('widget', 'widgets/widget_tags.php', 'cs_tags_widget', 'CS Tags');
 qa_register_plugin_module('widget', 'widgets/widget_text.php', 'cs_widget_text', 'CS Text Widget');
@@ -48,6 +46,18 @@ qa_register_plugin_module('widget', 'widgets/widget_site_status.php', 'cs_site_s
 qa_register_plugin_module('widget', 'widgets/widget_top_users.php', 'cs_top_users_widget', 'CS Top Contributors');
 qa_register_plugin_module('widget', 'widgets/widget_posts.php', 'cs_widget_posts', 'CS Posts');
 qa_register_plugin_module('widget', 'widgets/widget_user_activity.php', 'cs_user_activity_widget', 'CS User Activity');
+qa_register_plugin_module('widget', 'widgets/widget_scroller.php', 'cs_widget_scroller', 'CS Scroller');
+
+qa_register_plugin_module('page', 'options.php', 'cs_theme_options', 'Theme Options');
+qa_register_plugin_module('page', 'widgets.php', 'cs_theme_widgets', 'Theme Widgets');
+qa_register_plugin_module('page', 'install.php', 'cs_theme_install_page', 'Theme Install Page');
+
+
+qa_register_plugin_layer('cs-layer.php', 'CS Control Layer');
+
+
+//load all addons
+cs_load_addons();
 
 function get_base_url()
 {
@@ -55,7 +65,7 @@ function get_base_url()
 	$protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, 5)) == 'https' ? 'https://' : 'http://';
 
 	/* returns /myproject/index.php */
-	if(qa_opt('neat_urls') == 0 || strpos($_SERVER['PHP_SELF'],'/index.php/') !== false):
+	if(QA_URL_FORMAT_NEAT == 0 || strpos($_SERVER['PHP_SELF'],'/index.php/') !== false):
 		$path = strstr($_SERVER['PHP_SELF'], '/index', true);
 		$directory = $path;
 	else:
@@ -74,6 +84,90 @@ function get_base_url()
 }	
 
 
+function cs_read_addons(){
+	$addons = array();
+	//load files from addons folder
+	$files=glob(CS_CONTROL_DIR.'/addons/*/addon.php');
+	//print_r($files);
+	foreach ($files as $file){
+		$data = cs_get_addon_data($file);
+		$data['folder'] = basename(dirname($file));
+		$data['file'] = basename($file);
+		$addons[] = $data;
+	}
+	return $addons;
+}
+function cs_read_addons_ajax(){
+	$addons = array();
+	//load files from addons folder
+	$files=glob(CS_CONTROL_DIR.'/addons/*/ajax.php');
+	//print_r($files);
+	foreach ($files as $file){
+		$data['folder'] = basename(dirname($file));
+		$data['file'] = basename($file);
+		$addons[] = $data;
+	}
+	return $addons;
+}
+
+function cs_load_addons(){
+	$addons = cs_read_addons();
+	if(!empty($addons))
+		foreach($addons as $addon){
+			if(isset($addon['type']) && $addon['type']=='layer' && isset($addon['file']) && isset($addon['class']) && isset($addon['name']))
+				qa_register_plugin_layer('addons/'.$addon['folder'].'/'.$addon['file'], $addon['name']);
+			elseif(isset($addon['type']) && isset($addon['file']) && isset($addon['class']) && isset($addon['name']))
+				qa_register_plugin_module($addon['type'], 'addons/'.$addon['folder'].'/'.$addon['file'], $addon['class'], $addon['name']);
+		}
+}
+function cs_load_addons_ajax(){
+	$addons = cs_read_addons_ajax();
+	if(!empty($addons))
+		foreach($addons as $addon){			
+			require_once CS_CONTROL_DIR.'/addons/'.$addon['folder'].'/'.$addon['file'];			
+		}
+}
+
+
+function cs_get_addon_data( $plugin_file) {
+	$plugin_data = cs_get_file_data( $plugin_file);
+
+	return $plugin_data;
+}
+
+function cs_get_file_data( $file) {
+	// We don't need to write to the file, so just open for reading.
+	$fp = fopen( $file, 'r' );
+
+	// Pull only the first 8kiB of the file in.
+	$file_data = fread( $fp, 8192 );
+
+	// PHP will close file handle, but we are good citizens.
+	fclose( $fp );
+
+	$metadata=cs_addon_metadata($file_data, array(
+		'name' => 'Name',
+		'type' => 'Type',
+		'class' => 'Class',
+		'description' => 'Description',
+		'version' => 'Version',
+		'author' => 'Author',
+		'author_uri' => 'Author URI'
+	));
+
+	return $metadata;
+}
+
+function cs_addon_metadata($contents, $fields){
+	$metadata=array();
+
+	foreach ($fields as $key => $field)
+		if (preg_match('/'.str_replace(' ', '[ \t]*', preg_quote($field, '/')).':[ \t]*([^\n\f]*)[\n\f]/i', $contents, $matches))
+			$metadata[$key]=trim($matches[1]);
+	
+	return $metadata;
+}
+
 function get_all_widgets()
 {		
 	$widgets = qa_db_read_all_assoc(qa_db_query_sub('SELECT * FROM ^ra_widgets ORDER BY widget_order'));
@@ -85,6 +179,7 @@ function get_all_widgets()
 	return $widgets;
 
 }
+
 function get_widgets_by_position($position)
 {		
 	$widgets = qa_db_read_all_assoc(qa_db_query_sub('SELECT * FROM ^ra_widgets WHERE position = $ ORDER BY widget_order', $position));
@@ -132,28 +227,17 @@ function cs_user_data($handle){
 	if(defined('QA_WORDPRESS_INTEGRATE_PATH')){
 		$u_rank = cs_get_cache_select_selectspec(qa_db_user_rank_selectspec($userid,true));
 		$u_points = cs_get_cache_select_selectspec(qa_db_user_points_selectspec($userid,true));
-		if (empty($u_points))
-			$u_points=array();
-			
+		
 		$userinfo = array();
 		$user_info = get_userdata( $userid );
 		$userinfo['userid'] = $userid;
 		$userinfo['handle'] = $handle;
 		$userinfo['email'] = $user_info->user_email;
-		if (user_can($userid , 'administrator'))
-			$level=QA_USER_LEVEL_ADMIN;
-		elseif (user_can($userid , 'editor'))
-			$level=QA_USER_LEVEL_EDITOR;
-		elseif (user_can($userid , 'contributor'))
-			$level=QA_USER_LEVEL_EXPERT;
-		else
-			$level=QA_USER_LEVEL_BASIC;
 		
 		$user[0] = $userinfo;
 		$user[1]['rank'] = $u_rank;
 		$user[2] = $u_points;
 		$user = ($user[0]+ $user[1]+ $user[2]);
-		$user['level'] = $level;
 	}else{
 		$user[0] = cs_get_cache_select_selectspec( qa_db_user_account_selectspec($userid, true) );
 		$user[1]['rank'] = cs_get_cache_select_selectspec( qa_db_user_rank_selectspec($handle) );
@@ -424,9 +508,6 @@ function cs_social_icons(){
 
 
 function reset_theme_options(){
-	if (!(defined(Q_THEME_URL))){
-		define('Q_THEME_URL', get_base_url().'/qa-theme/'.qa_get_site_theme());
-	}
 	qa_opt('cs_custom_style','');
 	// General
 	qa_opt('logo_url', Q_THEME_URL . '/images/logo.png');
@@ -442,7 +523,7 @@ function reset_theme_options(){
 	
 	
 	// Layout
-	qa_opt('cs_nav_position', 'top');
+	qa_opt('cs_theme_layout', 'boxed');
 	qa_opt('cs_nav_fixed', true);	
 	qa_opt('cs_show_icon', true);	
 	qa_opt('cs_enable_ask_button', true);	
@@ -504,7 +585,7 @@ function reset_theme_options(){
 	qa_opt('cs_ads_after_question_content','');
 
 	// footer							
-	qa_opt('cs_footer_copyright', 'Copyright ï¿½ 2014');
+	qa_opt('cs_footer_copyright', 'Copyright © 2014');
 }
 
 function is_featured($postid){
@@ -514,9 +595,7 @@ function is_featured($postid){
 function get_featured_thumb($postid){
 	require_once QA_INCLUDE_DIR.'qa-db-metas.php';
 	$img =  qa_db_postmeta_get($postid, 'featured_image');
-	if (!(defined(Q_THEME_URL))){
-		define('Q_THEME_URL', get_base_url().'/qa-theme/'.qa_get_site_theme());
-	}
+
 	if (!empty($img)){
 		$thumb_img = preg_replace('/(\.[^.]+)$/', sprintf('%s$1', '_s'), $img);
 		return '<img class="featured-image" src="'.Q_THEME_URL . '/uploads/' . $thumb_img .'" />';
@@ -526,9 +605,7 @@ function get_featured_thumb($postid){
 function get_featured_image($postid){
 	require_once QA_INCLUDE_DIR.'qa-db-metas.php';
 	$img =  qa_db_postmeta_get($postid, 'featured_image');
-	if (!(defined(Q_THEME_URL))){
-		define('Q_THEME_URL', get_base_url().'/qa-theme/'.qa_get_site_theme());
-	}
+
 	if (!empty($img))
 		return '<img class="image-preview" id="image-preview" src="'.Q_THEME_URL . '/uploads/' . $img.'" />';
 		
@@ -699,8 +776,15 @@ function cs_ajax_user_popover(){
 	if(isset($handle)){
 		$userid = qa_handle_to_userid($handle);
 		//$badges = ra_user_badge($handle);
+		
+		if(defined('QA_WORDPRESS_INTEGRATE_PATH')){
+			$userid = qa_handle_to_userid($handle);
+			$cover = get_user_meta( $userid, 'cover' );
+			$cover = $cover[0];
+		}else{
+			$data = cs_user_data($handle);
+		}
 
-		$data = cs_user_data($handle);
 		?>
 		<div id="<?php echo $userid;?>_popover" class="user-popover">
 			<div class="counts clearfix">
@@ -720,7 +804,7 @@ function cs_ajax_user_popover(){
 			<div class="bottom">	
 				<div class="avatar pull-left"><?php echo cs_get_avatar($handle, 30); ?></div>
 				<span class="name"><?php echo cs_name($handle); ?></span>				
-				<span class="level"><?php echo qa_user_level_string($data['level']);?></span>
+				<span class="level"><?php echo qa_user_level_string($data['level']); ?></span>				
 			</div>
 		</div>	
 		<?php
@@ -756,7 +840,7 @@ function stripslashes2($string) {
 	str_replace('\\', '', $string);
     return $string;
 }
- if (!function_exists('qa_user_level_string')) { // for external codes
+/* if (!function_exists('qa_user_level_string')) {
 	function qa_user_level_string($level)
 	{
 		if (qa_to_override(__FUNCTION__)) { $args=func_get_args(); return qa_call_override(__FUNCTION__, $args); }
@@ -778,4 +862,4 @@ function stripslashes2($string) {
 		
 		return qa_lang($string);
 	}
-} 
+} */

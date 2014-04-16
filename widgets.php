@@ -229,15 +229,15 @@ class cs_theme_widgets {
 		}
 		
 		function widget_options_form_textarea($field){
-			return '<textarea '.$field['tags'].'>'.$field['value'].'</textarea>';
+			return '<textarea '.$field['tags'].'>'.@$field['value'].'</textarea>';
 		}
 		
 		function widget_options_form_input($field){
-			return '<input '.$field['tags'].' value="'.$field['value'].'" />';
+			return '<input '.$field['tags'].' value="'.@$field['value'].'" />';
 		}
 		
 		function widget_options_form_label($k, $field){
-			return '<label for="'.$k.'">'.$field['label'].'</label>';
+			return '<label for="'.$k.'">'.@$field['label'].'</label>';
 		}
 	
 	
