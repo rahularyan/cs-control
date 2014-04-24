@@ -47,7 +47,7 @@
 			if ($this->request == 'themeoptions') {
 				$this->output('<script type="text/javascript" src="' . Q_THEME_URL . '/js/admin.js"></script>');
 				$this->output('<script type="text/javascript" src="' . Q_THEME_URL . '/js/spectrum.js"></script>'); // color picker
-				$this->output('<script type="text/javascript" src="' . Q_THEME_URL . '/js/chosen.jquery.min.js"></script>'); // Select list
+
 				$this->output('<script type="text/javascript" src="' . Q_THEME_URL . '/js/jquery.uploadfile.min.js"></script>'); // File uploader
 			}
 			

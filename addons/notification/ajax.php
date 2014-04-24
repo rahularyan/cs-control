@@ -150,7 +150,7 @@ function cs_ajax_activitylist(){
 										<strong class="where">'.$type.'</strong>
 									</div>
 									<div class="footer">
-										<span class="event-icon icon-replay"></span>
+										<span class="event-icon icon-arrow-back"></span>
 										<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
 									</div>
 								</a>
@@ -162,7 +162,7 @@ function cs_ajax_activitylist(){
 					$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,null);
 					
 					echo '<div class="event-content clearfix'.$read.'"'.$id.'>
-							<div class="avatar"><a class="icon icon-eye-open" href="'.$url.'"></a></div>
+							<div class="avatar"><a class="icon icon-eye" href="'.$url.'"></a></div>
 							<div class="event-right">
 								<a href="'.$url.'">
 									<div class="head">
@@ -183,7 +183,7 @@ function cs_ajax_activitylist(){
 					$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,$anchor);
 					
 					echo '<div class="event-content clearfix'.$read.'"'.$id.'>
-							<div class="avatar"><a class="icon icon-eye-open" href="'.$url.'"></a></div>
+							<div class="avatar"><a class="icon icon-eye" href="'.$url.'"></a></div>
 							<div class="event-right">
 								<a href="'.$url.'">
 									<div class="head">
@@ -204,7 +204,7 @@ function cs_ajax_activitylist(){
 					$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,$anchor);
 					
 					echo '<div class="event-content clearfix'.$read.'"'.$id.'>
-							<div class="avatar"><a class="icon icon-eye-open" href="'.$url.'"></a></div>
+							<div class="avatar"><a class="icon icon-eye" href="'.$url.'"></a></div>
 							<div class="event-right">
 								<a href="'.$url.'">
 									<div class="head">
@@ -232,7 +232,7 @@ function cs_ajax_activitylist(){
 										<span class="what">'.qa_lang_html('cleanstrap/selected_as_best').'</span>
 									</div>
 									<div class="footer">
-										<span class="event-icon icon-medal"></span>
+										<span class="event-icon icon-award"></span>
 										<span class="points">'.qa_lang_sub('cleanstrap/you_have_earned_x_points', $event_point['a_post']).'</span>
 										<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
 									</div>
@@ -256,7 +256,7 @@ function cs_ajax_activitylist(){
 										<strong class="where">'.qa_lang_html('cleanstrap/question').'</strong>
 									</div>
 									<div class="footer">
-										<span class="event-icon icon-thumbs-up2"></span>
+										<span class="event-icon icon-thumb-up"></span>
 										<span class="points">'.qa_lang_sub('cleanstrap/you_have_earned_x_points', $event_point['a_vote_up']).'</span>
 										<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
 									</div>
@@ -279,7 +279,7 @@ function cs_ajax_activitylist(){
 										<strong class="where">'.qa_lang_html('cleanstrap/answer').'</strong>
 									</div>
 									<div class="footer">
-										<span class="event-icon icon-thumbs-up2"></span>
+										<span class="event-icon icon-thumb-up"></span>
 										<span class="points">'.qa_lang_sub('cleanstrap/you_have_earned_x_points', $event_point['a_vote_up']).'</span>
 										<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
 									</div>
@@ -293,7 +293,7 @@ function cs_ajax_activitylist(){
 					$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null);
 					
 					echo '<div class="event-content clearfix'.$read.'"'.$id.'>
-							<div class="avatar"><a class="icon icon-checkmark3" href="'.$url.'"></a></div>
+							<div class="avatar"><a class="icon icon-input-checked" href="'.$url.'"></a></div>
 							<div class="event-right">
 								<a href="'.$url.'">
 									<div class="head">
@@ -314,7 +314,7 @@ function cs_ajax_activitylist(){
 					$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,$anchor);
 					
 					echo '<div class="event-content clearfix'.$read.'"'.$id.'>
-							<div class="avatar"><a class="icon icon-checkmark3" href="'.$url.'"></a></div>
+							<div class="avatar"><a class="icon icon-input-checked" href="'.$url.'"></a></div>
 							<div class="event-right">
 								<a href="'.$url.'">
 									<div class="head">
@@ -370,7 +370,7 @@ function cs_ajax_activitylist(){
 				case 'q_vote_down': 
 					$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null);
 					echo '<div class="event-content clearfix'.$read.'"'.$id.'>
-							<div class="avatar"><a class="icon icon-thumbs-down2" href="'.$url.'"></a></div>
+							<div class="avatar"><a class="icon icon-thumb-down" href="'.$url.'"></a></div>
 							<div class="event-right">
 								<a href="'.$url.'">
 									<div class="head">
@@ -389,7 +389,7 @@ function cs_ajax_activitylist(){
 					$anchor = qa_anchor('C', $event['postid']);
 					$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null,$anchor);
 					echo '<div class="event-content clearfix'.$read.'"'.$id.'>
-							<div class="avatar"><a class="icon icon-checkmark3" href="'.$url.'"></a></div>
+							<div class="avatar"><a class="icon icon-input-checked" href="'.$url.'"></a></div>
 							<div class="event-right">
 								<a href="'.$url.'">
 									<div class="head">
@@ -409,7 +409,7 @@ function cs_ajax_activitylist(){
 					$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null);
 		
 					echo '<div class="event-content clearfix'.$read.'"'.$id.'>
-							<div class="avatar"><a class="icon icon-cross" href="'.$url.'"></a></div>
+							<div class="avatar"><a class="icon icon-times" href="'.$url.'"></a></div>
 							<div class="event-right">
 								<a href="'.$url.'">
 									<div class="head">
@@ -429,7 +429,7 @@ function cs_ajax_activitylist(){
 					$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null, $anchor);
 					
 					echo '<div class="event-content clearfix'.$read.'"'.$id.'>
-							<div class="avatar"><a class="icon icon-cross" href="'.$url.'"></a></div>
+							<div class="avatar"><a class="icon icon-times" href="'.$url.'"></a></div>
 							<div class="event-right">
 								<a href="'.$url.'">
 									<div class="head">
@@ -447,7 +447,7 @@ function cs_ajax_activitylist(){
 					$anchor = qa_anchor('C', $event['postid']);
 					$url = qa_path_html(qa_q_request($event['params']['qid'], $event['params']['qtitle']), $url_param, qa_opt('site_url'),null, $anchor);
 					echo '<div class="event-content clearfix'.$read.'"'.$id.'>
-							<div class="avatar"><a class="icon icon-cross" href="'.$url.'"></a></div>
+							<div class="avatar"><a class="icon icon-times" href="'.$url.'"></a></div>
 							<div class="event-right">
 								<a href="'.$url.'">
 									<div class="head">
@@ -547,7 +547,7 @@ function cs_ajax_messagelist(){
 										<span class="message">'.$message.'</span>
 									</div>
 									<div class="footer">
-										<span class="event-icon icon-mail"></span>
+										<span class="event-icon icon-email"></span>
 										<span class="date">'.qa_lang_sub('cleanstrap/x_ago', $event['date']).'</span>
 									</div>
 								</a>

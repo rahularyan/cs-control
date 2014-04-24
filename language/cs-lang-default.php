@@ -128,6 +128,8 @@
 		'no_more_activity' => 'No more activity to load!',
 		'followup_comment' => 'added a follow up',
 		'no_more_messages' => 'No more message to load!',
+		'followers' => 'followers',
+		'x_followers' => '^ followers',
 	);
 	
 

@@ -40,7 +40,7 @@ class qa_html_theme_layer extends qa_html_theme_base {
 									<div class="append">
 										<div class="ajax-list"></div>
 										<span class="loading"></span>
-										<div class="no-activity icon-chart-bar">'.qa_lang('cleanstrap/no-activity').'</div>
+										<div class="no-activity icon-signal">'.qa_lang('cleanstrap/no-activity').'</div>
 									</div>
 									
 									<a class="event-footer" href="'.qa_path_html('notifications', null, qa_opt('site_url')).'">'.qa_lang('cleanstrap/see_all').'</a>
@@ -51,7 +51,7 @@ class qa_html_theme_layer extends qa_html_theme_base {
 						
 						<div class="message-bar">
 							<div class="button dropdown">
-								<a href="' . qa_path_html('user/' . $handle . '/message') . '" class=" icon-email dropdown-toggle messagelist" data-toggle="dropdown" id="messagelist"></a>
+								<a href="' . qa_path_html('user/' . $handle . '/message') . '" class=" icon-mail dropdown-toggle messagelist" data-toggle="dropdown" id="messagelist"></a>
 								<div class="dropdown-menu message-dropdown-list pull-right" id="message-dropdown-list">
 									<div class="bar">
 										<span>'.qa_lang_html('cleanstrap/messages').'</span>
@@ -60,7 +60,7 @@ class qa_html_theme_layer extends qa_html_theme_base {
 									<div class="append">
 										<div class="ajax-list"></div>
 										<span class="loading"></span>
-										<div class="no-activity icon-chart-bar">'.qa_lang('cleanstrap/no-activity').'</div>
+										<div class="no-activity icon-signal">'.qa_lang('cleanstrap/no-activity').'</div>
 									</div>
 									
 									<a class="event-footer" href="'.qa_path_html('user/'.$handle.'/wall', null, qa_opt('site_url')).'">'.qa_lang('cleanstrap/see_all').'</a>

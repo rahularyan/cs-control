@@ -24,8 +24,16 @@ define('CS_CONTROL_URL', get_base_url().'/qa-plugin/cs-control');
 define('CS_THEME_URL', get_base_url().'/qa-theme/cleanstrap');
 define('CS_THEME_DIR', QA_THEME_DIR . '/cleanstrap');
 
+// for hooks and overriding 
+include_once(CS_CONTROL_DIR. '/inc/hooks.php');
+include_once(CS_CONTROL_DIR. '/action_hooks.php');
+include_once(CS_THEME_DIR. '/action_hooks.php');
+
 // register plugin language
 qa_register_plugin_phrases('language/cs-lang-*.php', 'cleanstrap');
+
+
+qa_register_plugin_overrides('overrides.php');
 
 qa_register_plugin_module('event', 'inc/init.php', 'cs_init', 'CS Init');
 qa_register_plugin_module('event', 'inc/cs-user-events.php', 'cs_user_event_logger', 'CS User Event Logger');
@@ -838,6 +846,42 @@ function stripslashes2($string) {
 	str_replace('\\', '', $string);
     return $string;
 }
+
+function cs_followers_list($handle, $limit = 14, $order_by = 'rand'){
+	$userid = qa_handle_to_userid($handle);
+	
+	if( $order_by == 'rand')
+		$order_by = 'ORDER BY RAND()';
+	
+	$followers = qa_db_read_all_values(qa_db_query_sub('SELECT ^users.handle FROM ^userfavorites, ^users  WHERE (^userfavorites.userid = ^users.userid and ^userfavorites.entityid = #) and ^userfavorites.entitytype = "U" ORDER BY RAND() LIMIT #', $userid,  (int)$limit));	
+
+	
+	if(count($followers)){
+		$output = '<div class="user-followers-inner">';
+		$output .= '<ul class="user-followers clearfix">';
+		foreach($followers as $user){
+			$id = qa_handle_to_userid($user);
+			$output .= '<li><div class="avatar" data-handle="'.$user.'" data-id="'.$id.'"><a href="'.qa_path_html('user/'.$user).'"><img src="'.cs_get_avatar($user, 59, false).'" /></a></div></li>';
+		}
+		$count = cs_user_followers_count($userid);
+		
+		if($count > 100)
+			$count = '99+';
+		else
+			$count = ($count);
+			
+		$output .= '<li class="total-followers"><a href="'.qa_path_html('followers').'"><span>'.$count.'</span>'.qa_lang_html('cleanstrap/followers').'</a></li>';
+		$output .= '</ul>';
+		$output .= '</div>';
+		return $output;
+	}
+	return;
+}
+function cs_user_followers_count($userid){
+	$count =  qa_db_read_one_value(qa_db_query_sub('SELECT count(userid) FROM ^userfavorites  WHERE  entityid = # and entitytype = "U"', $userid), true);
+	return $count;
+}
+
 /* if (!function_exists('qa_user_level_string')) {
 	function qa_user_level_string($level)
 	{

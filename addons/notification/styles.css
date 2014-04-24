@@ -116,7 +116,7 @@
 
 .event-right .footer {
     color: #888;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 .event-right .event-icon {
@@ -224,4 +224,7 @@
     display: block;
     padding: 10px;
     text-align: center;
+}
+.event-right .what {
+    font-weight: bold;
 }
