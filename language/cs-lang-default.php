@@ -130,6 +130,8 @@
 		'no_more_messages' => 'No more message to load!',
 		'followers' => 'followers',
 		'x_followers' => '^ followers',
+		'asked_by' => 'Asked by',
+		'add_this_to_favorite' => 'Add this question to my favorites',
 	);
 	
 
