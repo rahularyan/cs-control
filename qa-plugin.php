@@ -308,22 +308,31 @@ function cs_post_type($id){
 	return $result;
 }
 
-function cs_post_status($item){
-
+function cs_post_status($item, $description = false){
+	$notice = '';
 	if (@$item['answer_selected'] || @$item['raw']['selchildid']){	
 		$notice =   '<span class="post-status selected">'.qa_lang_html('cleanstrap/solved').'</span>' ;
+		if($description)
+			$notice .=   qa_lang_html('cleanstrap/marked_as_solved') ;
 	}elseif(@$item['raw']['closedbyid']){
 		$type = cs_post_type(@$item['raw']['closedbyid']);
-		if($type == 'Q')
-			$notice =   '<span class="post-status duplicate">'.qa_lang_html('cleanstrap/duplicate').'</span>' ;	
-		else
-			$notice =   '<span class="post-status closed">'.qa_lang_html('cleanstrap/closed').'</span>' ;	
+		if($type == 'Q'){
+			$notice =   '<span class="post-status duplicate">'.qa_lang_html('cleanstrap/duplicate').'</span>' ;
+			if($description)
+				$notice .=   qa_lang_html('cleanstrap/marked_as_duplicate') ;			
+		}else{
+			$notice =   '<span class="post-status closed">'.qa_lang_html('cleanstrap/closed').'</span>' ;
+			if($description)
+				$notice .=   qa_lang_html('cleanstrap/marked_as_closed') ;
+		}
 	}else{
-		$notice =   '<span class="post-status open">'.qa_lang_html('cleanstrap/open').'</span>' ;	
+		$notice =   '<span class="post-status open">'.qa_lang_html('cleanstrap/open').'</span>' ;
+			if($description)
+				$notice .=   qa_lang_html('cleanstrap/marked_as_open') ;		
 	}
 	return $notice;
 }
-function cs_get_post_status($item){
+function cs_get_post_status($item, $description = false){
 	// this will return question status whether question is open, closed, duplicate or solved
 	
 	if (@$item['answer_selected'] || @$item['raw']['selchildid']){	

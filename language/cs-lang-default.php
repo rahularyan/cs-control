@@ -132,6 +132,19 @@
 		'x_followers' => '^ followers',
 		'asked_by' => 'Asked by',
 		'add_this_to_favorite' => 'Add this question to my favorites',
+		'marked_as_solved' => 'this question is marked as solved',
+		'marked_as_duplicate' => 'this question is marked as duplicate',
+		'marked_as_closed' => 'this question is marked as closed',
+		'marked_as_open' => 'this question is open for new answers',
+		'favourite' => 'Favourite',
+		'unfavourite' => 'Unfavourite',
+		'answer_this_question' => 'Answer this question',
+		'you_cannot_answer' => 'You can\'t answer on this question',
+		'answers_received' => 'answers received',
+		'times_viewed' => 'times viewed',
+		'posted_under' => 'Posted under',
+		'tagged_under' => 'Tagged under',
+		'question_is_featured' => 'this is a featured question',
 	);
 	
 
