@@ -84,8 +84,8 @@ class cs_theme_widgets {
 					<div class="widget-title"><?php echo $k; ?> 
 						<div class="drag-handle icon-move"></div>
 						<div class="widget-delete icon-trash"></div>
-						<div class="widget-template-to icon-list"></div>
-						<div class="widget-options icon-wrench"></div>
+						<div class="widget-template-to icon-th-menu"></div>
+						<div class="widget-options icon-spanner"></div>
 					</div>
 					<div class="select-template">
 						<label>
@@ -117,7 +117,7 @@ class cs_theme_widgets {
 					<div class="widget-canvas" data-name="<?php echo $name; ?>">		
 						<div  class="position-header">		
 							<?php echo $name; ?><span class="position-description"><?php echo $description; ?></span>							
-							<i class="position-toggler icon-angle-down"></i>
+							<i class="position-toggler icon-cog"></i>
 							<div class="widget-save icon-ok"> Save</div>
 						</div>
 						<div class="position-canvas" data-name="<?php echo $name; ?>">
@@ -129,8 +129,8 @@ class cs_theme_widgets {
 											<div class="widget-title"><?php echo $w['name']; ?> 
 												<div class="drag-handle icon-move"></div>
 												<div class="widget-delete icon-trash"></div>
-												<div class="widget-template-to icon-list"></div>		
-												<div class="widget-options icon-wrench"></div>		
+												<div class="widget-template-to icon-th-menu"></div>		
+												<div class="widget-options icon-spanner"></div>		
 											</div>
 											<div class="select-template">
 											<input type="checkbox" name="show_title" <?php echo (@$w['param']['locations']['show_title'] ? 'checked' : ''); ?>> Show widget title</label><br />
@@ -229,15 +229,15 @@ class cs_theme_widgets {
 		}
 		
 		function widget_options_form_textarea($field){
-			return '<textarea '.$field['tags'].'>'.$field['value'].'</textarea>';
+			return '<textarea '.$field['tags'].'>'.@$field['value'].'</textarea>';
 		}
 		
 		function widget_options_form_input($field){
-			return '<input '.$field['tags'].' value="'.$field['value'].'" />';
+			return '<input '.$field['tags'].' value="'.@$field['value'].'" />';
 		}
 		
 		function widget_options_form_label($k, $field){
-			return '<label for="'.$k.'">'.$field['label'].'</label>';
+			return '<label for="'.$k.'">'.@$field['label'].'</label>';
 		}
 	
 	
