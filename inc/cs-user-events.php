@@ -111,32 +111,26 @@
 					break;
 				case 'q_vote_up':
 					$this->UpdateVote('q_vote_up', $postid,$userid, $params, 'q_vote_up', 1);
-					cs_event_hook('q_vote_up', array($postid,$userid, $effecteduserid, $params, $event));
 					$dolog=false;
 					break;
 				case 'a_vote_up':
 					$this->UpdateVote('a_vote_up', $postid,$userid, $params, 'a_vote_up', 1);
-					cs_event_hook('a_vote_up', array($postid,$userid, $effecteduserid, $params, $event));
 					$dolog=false;
 					break;
 				case 'q_vote_down':
-					$this->UpdateVote('q_vote_down', $postid,$userid, $params, 'q_vote_down', -1);
-					cs_event_hook('q_vote_down', array($postid,$userid, $effecteduserid, $params, $event));
+					$this->UpdateVote('q_vote_down', $postid,$userid, $params, 'q_vote_down', -1);				
 					$dolog=false;
 					break;
 				case 'a_vote_down':
 					$this->UpdateVote('a_vote_down', $postid,$userid, $params, 'a_vote_down', -1);
-					cs_event_hook('a_vote_down', array($postid,$userid, $effecteduserid, $params, $event));
 					$dolog=false;
 					break;
 				case 'q_vote_nil':
 					$this->UpdateVote('q_vote_nil', $postid,$userid, $params, 'q_vote_nil', 0);
-					cs_event_hook('q_vote_nil', array($postid,$userid, $effecteduserid, $params, $event));
 					$dolog=false;
 					break;
 				case 'a_vote_nil':
 					$this->UpdateVote('a_vote_nil', $postid,$userid, $params, 'a_vote_nil', 0);
-					cs_event_hook('a_vote_nil', array($postid,$userid, $effecteduserid, $params, $event));
 					$dolog=false;
 					break;
 				case 'q_approve':
@@ -267,6 +261,7 @@
 					$params[$eventname]=1;
 					
 					$this->AddEvent($postid,$userid, $effecteduserid, $params, $newevent);
+					cs_event_hook($event, array($postid,$userid, $effecteduserid, $params, $event));
 				}
 			}else{
 				$postparams=json_decode($posts[0],true);
@@ -309,6 +304,7 @@
 					"UPDATE ^ra_userevent SET datetime=NOW(), userid=$, effecteduserid=$, postid=$, event=$, params=$ WHERE postid=$ AND event=$",
 					$userid, $effecteduserid, $postid, $newevent,$paramstring, $postid, $newevent
 				);
+				cs_event_hook($event, array($postid,$userid, $effecteduserid, $params, $event));
 			}
 		}
 		
