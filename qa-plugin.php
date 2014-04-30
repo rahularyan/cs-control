@@ -24,8 +24,7 @@ define('CS_CONTROL_URL', get_base_url().'/qa-plugin/cs-control');
 define('CS_THEME_URL', get_base_url().'/qa-theme/cleanstrap');
 define('CS_THEME_DIR', QA_THEME_DIR . '/cleanstrap');
 
-// for hooks and overriding 
-include_once(CS_CONTROL_DIR. '/inc/hooks.php');
+
 include_once(CS_CONTROL_DIR. '/action_hooks.php');
 include_once(CS_THEME_DIR. '/action_hooks.php');
 
@@ -895,8 +894,7 @@ function handle_url($handle){
 	return qa_path_html('user/'.$handle);
 }
 
-function cs_event_hook($event, $value = NULL, $callback = NULL)
-{
+function cs_event_hook($event, $value = NULL, $callback = NULL){
     static $events;
 
     // Adding or removing a callback?
