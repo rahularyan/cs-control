@@ -238,13 +238,11 @@ class cs_theme_options {
 				<tr>
 					<th class="qa-form-tall-label">
 						Compression
-						<span class="description">Use Gzip compression to increase loading speed</span>
+						<span class="description">Cache and compress assets</span>
 					</th>
 					<td class="qa-form-tall-label">
 						<div class="on-off-checkbox-container">
-							<input type="checkbox" class="on-off-checkbox" value="1"' . (qa_opt('cs_enable_gzip') ? ' checked=""' : '') . ' id="cs_enable_gzip" name="cs_enable_gzip">
-							<label for="cs_enable_gzip">
-							</label>
+						'.(!qa_opt('cs_enable_gzip') ? '<a href="#" id="cache_assets" class="btn btn-default">Enable Compression</a>' : '<a href="#" id="cache_assets" class="active btn btn-danger">Disable Compression</a>').'
 						</div>
 					</td>
 				</tr>
@@ -1255,6 +1253,7 @@ class cs_theme_options {
         }
         return $style_options;
     }
+
 	
 }
 

@@ -74,14 +74,5 @@ class qa_html_theme_layer extends qa_html_theme_base {
 		//}
 	}
 	
-	function head_script(){
-		qa_html_theme_base::head_script();
-		$this->output('<script type="text/javascript" src="' . CS_CONTROL_URL . '/addons/notification/notification.js"></script>');
-	}
-	
-	function head_css(){
-		qa_html_theme_base::head_css();
-		$this->output('<link rel="stylesheet" type="text/css" href="' . CS_CONTROL_URL . '/addons/notification/styles.css"/>');
-	}
 	
 }

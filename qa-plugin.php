@@ -20,6 +20,8 @@ if (!defined('QA_VERSION')) { // don't allow this page to be requested directly 
 
 define('CS_CONTROL_DIR', dirname( __FILE__ ));
 define('CS_CONTROL_ADDON_DIR', CS_CONTROL_DIR.'/addons');
+define('CS_VERSION', 2);
+
 require_once(CS_CONTROL_DIR. '/functions.php');
 
 define('CS_CONTROL_URL', get_base_url().'/qa-plugin/cs-control');
