@@ -145,7 +145,15 @@
 		'posted_under' => 'Posted under',
 		'tagged_under' => 'Tagged under',
 		'question_is_featured' => 'this is a featured question',
-
+		//adding email notification messages 
+	    'dear_user' => 'Dear ^user_name , \n\n ',
+	    //databse snippets to be saved for async email 
+	    'your_question_answered_body_email' => "^open^q_title\n\n^q_content^close\n\nClick below to see the question:\n\n^url\n\n",
+	    //subjects 
+	    'your_question_answered_sub' => "Your question has been answered ",
+	    'your_question_has_a_comment_sub' => "Your question has a new comment",
+	    'your_question_answered_body' => "A new question has been answered by ^q_handle:\n\n^open^q_title\n\n^q_content^close\n\nClick below to see the question:\n\n^url\n\nThank you,\n\n^site_title",
+	    'your_question_has_a_comment_body' => "A new question has received a new comment by ^q_handle:\n\n^open^q_title\n\n^q_content^close\n\nClick below to see the question:\n\n^url\n\nThank you,\n\n^site_title",
 	);
 	
 

@@ -14,6 +14,9 @@ if (!defined('QA_VERSION')) {
 		header('Location: /');
 		exit;
 }
+define('NOTIFICATION_DIR', __DIR__);
+
+include_once NOTIFICATION_DIR . '/email-events.php';
 
 qa_register_plugin_layer('addons/notification/notification-layer.php', 'CS Notification Layer');
 qa_register_plugin_module('page', 'addons/notification/notification-page.php', 'cs_notification_page', 'CS Notification Page');
