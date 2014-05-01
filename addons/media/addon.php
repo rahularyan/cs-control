@@ -12,7 +12,12 @@ if (!defined('QA_VERSION')) {
 		exit;
 }
 
-
+	cs_event_hook('enqueue_css', NULL, 'cs_enqueue_css_x');
+	function cs_enqueue_css_x($css_src){
+		
+		$css_src['cs_bootstrap'] = Q_THEME_URL . '/css/bootstrap.css';	
+		return $css_src;
+	}
 
 class CS_Media_Addon{
 	function __construct(){

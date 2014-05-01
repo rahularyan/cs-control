@@ -2,8 +2,30 @@
 
 	class qa_html_theme_layer extends qa_html_theme_base {
 		
-		function doctype(){			
+		function doctype(){	
+			
+			//content hook
+			cs_event_hook('content', $this->content);
 		
+			$this->content['css_src']['cs_style'] = Q_THEME_URL.'/'.$this->css_name();
+			$this->content['css_admin']['cs_style'] = Q_THEME_URL . '/css/admin.css';
+		
+			//enqueue script and style in content
+			$hooked_script	= cs_event_hook('enqueue_scripts', array());
+			$hooked_css 	= cs_event_hook('enqueue_css', $this->content['css_src']);
+
+			if(is_array($hooked_script))
+				$this->content['script_src'] =  $hooked_script;
+				
+			if(is_array($hooked_css))
+				$this->content['css_src'] = $hooked_css;
+			
+			
+			// unset old jQuery
+			if(($key = array_search('<script src="../../qa-content/jquery-1.7.2.min.js" type="text/javascript"></script>', $this->content['script'])) !== false) {
+				unset($this->content['script'][$key]);
+			}
+
 			qa_html_theme_base::doctype();
 
 			if(qa_get_logged_in_level() >= QA_USER_LEVEL_ADMIN)	{
@@ -104,7 +126,6 @@
 		{
 			qa_html_theme_base::head_css();
 			if ($this->request == 'themeoptions') {
-				$this->output('<link rel="stylesheet" type="text/css" href="' . Q_THEME_URL . '/css/admin.css"/>');
 				$this->output('<link rel="stylesheet" type="text/css" href="' . Q_THEME_URL . '/css/spectrum.css"/>'); // color picker
 			}
 			
