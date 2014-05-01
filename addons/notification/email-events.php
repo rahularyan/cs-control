@@ -29,7 +29,9 @@ cs_event_hook('u_level', NULL, 'cs_notification_event');
 
 function cs_notification_event($data) {
       $params = $data[3];
-      writeToFile(print_r($params, true));
+      // writeToFile(print_r($params, true));
+      writeToFile("This method is invoked here ok . So no need to worry ");
+      cs_check_time_out_for_email();
       $postid = @$params['postid'];
       $event = $data[4];
       $loggeduserid = qa_get_logged_in_userid();
@@ -40,26 +42,155 @@ function cs_notification_event($data) {
 }
 
 function cs_check_time_out_for_email() {
-      /*//get the last run date 
-      $last_run_date = qa_opt('cs_notification_last_run_date');
-      //get the interval 
-      $email_event_interval = qa_opt('cs_notification_event_interval');*/
+      /* //get the last run date 
+        $last_run_date = qa_opt('cs_notification_last_run_date');
+        //get the interval
+        $email_event_interval = qa_opt('cs_notification_event_interval'); */
       //hardcode the values for testing 
-      
-      $last_run_date = qa_opt('cs_notification_last_run_date');
-      $email_event_interval = qa_opt('cs_notification_event_interval');
+      $date_format = "d/m/Y H:i:s";
+      $last_run_date = "01/05/2014 07:23:28";
+      $email_event_interval = 10; //always should be in seconds 
+
+      $last_run_date = new DateTime($last_run_date);
+      $email_event_interval = "PT" . $email_event_interval . "S";
+
+      //get the event occurance date --> last_rundate + interval 
+      $last_run_date->add(new DateInterval($email_event_interval));
+
+      //get the current time 
+      $current_time = new DateTime("now");
+
       //if current time is grater than last_rundate + interval then 
-
-        $curr_date = date() ;
-
-        //extract the emails and send notification 
-        //update the last rundate 
-      //else 
-        //no need t do anything 
+      if ($current_time > $last_run_date) {
+            //extract the emails and send notification 
+            //update the last rundate 
+            writeToFile("Its a time out now . Will send the emails ");
+            process_emails_from_db();
+      }
 }
 
 function process_emails_from_db() {
-      
+      //here extract all the email contents from database and perform the email sending operation 
+      $email_queue_data = cs_get_email_queue();
+      writeToFile("The email list is " . print_r($email_queue_data, true));
+      $email_list = get_email_list($email_queue_data);
+      writeToFile("The email list is " . print_r($email_list, true));
+      foreach ($email_list as $email_data) {
+            $email_body = prepare_email_body($email_queue_data, $email_data['email']);
+      }
+}
+
+function prepare_email_body($email_queue_data, $email) {
+      $email_body_arr = array();
+      $email_body = "";
+
+      if (is_array($email_queue_data)) {
+            foreach ($email_queue_data as $queue_data) {
+                  if ($queue_data['email'] === $email) {
+                        $event = $queue_data['event'];
+                        $body = $queue_data['body'];
+                        if (!!$body) {
+                              $email_body_arr[$email][$event] = (!!$email_body_arr[$event] ) ? $email_body_arr[$event] . "\n\n" : "";
+                              $email_body_arr[$email][$event] .= $body;
+                        }
+                  }
+            } //foreach
+            foreach ($email_body_arr as $email_body_data) {
+                writeToFile("email body data " . print_r($email_body_data , true ));
+            }
+            /*
+            switch ($event) {
+                  case 'a_post':
+                        $your_question_answered = (!!$your_question_answered) ? $your_question_answered . "\n\n" : "";
+                        break;
+                  case 'c_post':
+                        break;
+                  case 'q_reshow':
+                        break;
+                  case 'a_reshow':
+                        break;
+                  case 'c_reshow':
+                        break;
+                  case 'a_select':
+                        break;
+                  case 'q_vote_up':
+                        break;
+                  case 'a_vote_up':
+                        break;
+                  case 'q_vote_down':
+                        break;
+                  case 'a_vote_down':
+                        break;
+                  case 'q_vote_nil':
+                        break;
+                  case 'a_vote_nil':
+                        break;
+                  case 'q_approve':
+                        break;
+                  case 'a_approve':
+                        break;
+                  case 'c_approve':
+                        break;
+                  case 'q_reject':
+                        break;
+                  case 'a_reject':
+                        break;
+                  case 'c_reject':
+                        break;
+                  case 'q_favorite':
+                        break;
+                  case 'q_post':
+                        break;
+                  case 'u_favorite':
+                        break;
+                  case 'u_message':
+                        break;
+                  case 'u_wall_post':
+                        break;
+                  case 'u_level':
+                        break;
+                  default:
+                        break;
+            }*/
+      }
+}
+
+function get_email_list($email_queue_data) {
+      $email_list = array();
+      $unique_email_list = array();
+      if (is_array($email_queue_data)) {
+            foreach ($email_queue_data as $queue_data) {
+                  if (isset($queue_data['email']) && !empty($queue_data['email'])) {
+                        $email = $queue_data['email'];
+                        if (!in_array($email, $unique_email_list)) {
+                              $unique_email_list[] = $email;
+                              $data = array('email' => $email);
+                              if (isset($queue_data['name']) && !empty($queue_data['name'])) {
+                                    $data['name'] = $queue_data['name'];
+                              }
+                              $email_list[] = $data;
+                        }
+                  }
+            }
+      }
+      return $email_list;
+}
+
+function shrink_email_body($email_queue_data, $max_body_length = 50) {
+      if (is_array($email_queue_data)) {
+            foreach ($email_queue_data as $queue_data) {
+                  if (isset($queue_data['body'])) {
+                        $queue_data['body'] = substr($queue_data['body'], 0, $max_body_length);
+                        $queue_data['body'] .= "....";
+                  }
+            }
+      }
+      return $email_queue_data;
+}
+
+function cs_get_email_queue() {
+
+      return qa_db_read_all_assoc(qa_db_query_sub("SELECT * from ^ra_email_queue queue join ^ra_email_queue_receiver rcv on queue.id = rcv.queue_id WHERE queue.status = 0 "));
 }
 
 function cs_get_name_from_userid($userid) {
@@ -98,8 +229,51 @@ function cs_get_email_subject($event = "") {
                   case 'c_post':
                         return qa_lang("cleanstrap/your_question_has_a_comment_sub");
                         break;
+                  case 'q_reshow':
+                        break;
+                  case 'a_reshow':
+                        break;
+                  case 'c_reshow':
+                        break;
+                  case 'a_select':
+                        break;
+                  case 'q_vote_up':
+                        break;
+                  case 'a_vote_up':
+                        break;
+                  case 'q_vote_down':
+                        break;
+                  case 'a_vote_down':
+                        break;
+                  case 'q_vote_nil':
+                        break;
+                  case 'a_vote_nil':
+                        break;
+                  case 'q_approve':
+                        break;
+                  case 'a_approve':
+                        break;
+                  case 'c_approve':
+                        break;
+                  case 'q_reject':
+                        break;
+                  case 'a_reject':
+                        break;
+                  case 'c_reject':
+                        break;
+                  case 'q_favorite':
+                        break;
+                  case 'q_post':
+                        break;
+                  case 'u_favorite':
+                        break;
+                  case 'u_message':
+                        break;
+                  case 'u_wall_post':
+                        break;
+                  case 'u_level':
+                        break;
                   default:
-                        # code...
                         break;
             }
       }
@@ -114,15 +288,57 @@ function cs_get_email_body($event = "") {
                   case 'c_post':
                         return qa_lang("cleanstrap/your_question_has_a_comment_body");
                         break;
+                  case 'q_reshow':
+                        break;
+                  case 'a_reshow':
+                        break;
+                  case 'c_reshow':
+                        break;
+                  case 'a_select':
+                        break;
+                  case 'q_vote_up':
+                        break;
+                  case 'a_vote_up':
+                        break;
+                  case 'q_vote_down':
+                        break;
+                  case 'a_vote_down':
+                        break;
+                  case 'q_vote_nil':
+                        break;
+                  case 'a_vote_nil':
+                        break;
+                  case 'q_approve':
+                        break;
+                  case 'a_approve':
+                        break;
+                  case 'c_approve':
+                        break;
+                  case 'q_reject':
+                        break;
+                  case 'a_reject':
+                        break;
+                  case 'c_reject':
+                        break;
+                  case 'q_favorite':
+                        break;
+                  case 'q_post':
+                        break;
+                  case 'u_favorite':
+                        break;
+                  case 'u_message':
+                        break;
+                  case 'u_wall_post':
+                        break;
+                  case 'u_level':
+                        break;
                   default:
-                        # code...
                         break;
             }
       }
 }
 
 function cs_save_email_notification($bcclist, $notifying_user, $handle, $event, $body, $subs) {
-      // writeToFile("Started saving the email ");
       require_once QA_INCLUDE_DIR . 'qa-db-selects.php';
       require_once QA_INCLUDE_DIR . 'qa-util-string.php';
 
@@ -130,15 +346,12 @@ function cs_save_email_notification($bcclist, $notifying_user, $handle, $event, 
       $subs['^handle'] = $handle;
       $subs['^open'] = "\n";
       $subs['^close'] = "\n";
-      // writeToFile("Saving the Email ");
       $id = cs_dump_email_content_to_db(array(
           'event' => $event,
           'body' => strtr($body, $subs),
           'by' => $handle,
       ));
-      // writeToFile("Notifying user  " . print_r($notifying_user, true));
       cs_dump_email_to_db($notifying_user, $id);
-      // writeToFile("Saved the email with id  $id ");
 }
 
 function cs_dump_email_content_to_db($param) {
@@ -170,10 +383,8 @@ function cs_send_email_notification($bcclist, $email, $handle, $subject, $body, 
 
       $subs['^site_title'] = qa_opt('site_title');
       $subs['^handle'] = $handle;
-//            $subs['^email'] = $email;
       $subs['^open'] = "\n";
       $subs['^close'] = "\n";
-      // writeToFile("Sending Email ");
       return cs_send_email(array(
           'fromemail' => qa_opt('from_email'),
           'fromname' => qa_opt('site_title'),
@@ -190,7 +401,6 @@ function cs_send_email($params) {
       require_once QA_INCLUDE_DIR . 'qa-class.phpmailer.php';
       $mailer = new PHPMailer();
       $mailer->CharSet = 'utf-8';
-      // writeToFile("this is the email sent    " . print_r($params, true));
       $mailer->From = $params['fromemail'];
       $mailer->Sender = $params['fromemail'];
       $mailer->FromName = $params['fromname'];

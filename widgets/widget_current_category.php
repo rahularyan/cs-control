@@ -1,4 +1,5 @@
-<?php
+<?php
+
 	class cs_current_category_widget {
 		function allow_template($template){
 			$allow=false;
@@ -20,8 +21,10 @@
 				case 'custom':
 					$allow=true;
 					break;
-			}			return $allow;
-		}
+			}
+			return $allow;
+		}
+
 		function allow_region($region){
 			$allow=false;
 			switch ($region){
@@ -32,25 +35,35 @@
 					break;
 			}
 			return $allow;
-		}
+		}
+
 		function ra_get_cat_desc($slug){
 			$result = qa_db_read_one_assoc(qa_db_query_sub('SELECT title,content FROM ^categories WHERE tags=$', $slug ),true);
 			return $result;
-		}
+		}
+
 		function output_widget($region, $place, $themeobject, $template, $request, $qa_content){
-			$req = end(explode('/', qa_request()));
+			$req_arr = explode('/', qa_request()) ;
+			$req = end($req_arr);
 			if(!isset($req))
-				return;			
+				return;			
+
 			if(!(qa_opt('event_logger_to_database'))) return;
 			$widget_opt = @$themeobject->current_widget['param']['options'];
-			$cat = $this->ra_get_cat_desc($req);			
+			$cat = $this->ra_get_cat_desc($req);			
+
 			if(@$themeobject->current_widget['param']['locations']['show_title'] && isset($cat['title']))
-				$themeobject->output('<h3 class="widget-title">'.$cat['title'].'</h3>');				
+				$themeobject->output('<h3 class="widget-title">'.$cat['title'].'</h3>');				
+
 			$themeobject->output('<div class="ra-cc-widget">');	
-				$themeobject->output($cat['content']);					
+				$themeobject->output($cat['content']);					
+
 			$themeobject->output('</div>');
 		}
-	}
-/*
-	Omit PHP closing tag to help avoid accidental output
+	}
+
+/*
+
+	Omit PHP closing tag to help avoid accidental output
+
 */
