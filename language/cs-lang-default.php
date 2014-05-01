@@ -146,9 +146,11 @@
 		'tagged_under' => 'Tagged under',
 		'question_is_featured' => 'this is a featured question',
 		//adding email notification messages 
-	    'dear_user' => 'Dear ^user_name , \n\n ',
+	     'greeting' => 'Dear ^user_name , \n\n ',
+	    'thank_you_message' => "\n\nThank you,\n\n^site_title" ,
+	    'notification_email_subject' => "Updates from ^site_title" ,
 	    //databse snippets to be saved for async email 
-	    'your_question_answered_body_email' => "^open^q_title\n\n^q_content^close\n\nClick below to see the question:\n\n^url\n\n",
+	    'your_question_answered_body_email' => "^open ^done_by has answered this question <a href='^url'> ^q_title </a> \n\n^q_content^close\n\n<a href='^url'>Click  here </a> to see the question:\n",
 	    //subjects 
 	    'your_question_answered_sub' => "Your question has been answered ",
 	    'your_question_has_a_comment_sub' => "Your question has a new comment",
