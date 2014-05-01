@@ -853,7 +853,7 @@ function cs_event_hook($event, $value = NULL, $callback = NULL){
     }
 }
 
-function cs_combine_assets($assets){
+function cs_combine_assets($assets, $css = true){
 	$styles = '';
 	$host_name = $_SERVER['HTTP_HOST'];
 	if(is_array($assets)){
@@ -864,37 +864,31 @@ function cs_combine_assets($assets){
 			if($parse['host'] == $host_name){
 				$path = $_SERVER["DOCUMENT_ROOT"].ltrim ($parse['path'], '/');
 				$content = file_get_contents($path);
-				$styles .= cs_compress_css($content);
+				if($css)
+					$styles .= cs_compress_css($content);
+				else
+					$styles .= cs_compress_js($content);
 			}
 		}
 	}
-	
-	$styles = str_replace('../', Q_THEME_URL.'/', $styles);
+
 	return $styles;
 }
 
-function cs_combine_js($assets){
-	$script = '';
-	$host_name = $_SERVER['HTTP_HOST'];
-	if(is_array($assets)){
 
-		foreach ($assets as $a){
-			$parse = parse_url($a);
-			
-			if($parse['host'] == $host_name){
-				$path = $_SERVER["DOCUMENT_ROOT"].ltrim ($parse['path'], '/');
-				$script .= file_get_contents($path);
-			}
-		}
-	}
-
-	return $script;
-}
 
 function cs_compress_css($content) {
 	/* remove comments */
+
 	$content = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $content);
 	/* remove tabs, spaces, newlines, etc. */
 	$content = str_replace(array("\r\n", "\r", "\n", "\t", '  ', '    ', '    '), '', $content);
+	return $content;
+}
+
+function cs_compress_js( $content ) {
+	require_once CS_CONTROL_DIR.'/inc/jsmin.php';
+
+	$content = JSMin::minify($content);
 	return $content;
 }
