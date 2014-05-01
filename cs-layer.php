@@ -27,8 +27,14 @@
 			}
 
 			qa_html_theme_base::doctype();
-			
+
 			if(qa_get_logged_in_level() >= QA_USER_LEVEL_ADMIN)	{
+
+				// theme installation & update
+				$version = qa_opt('cs_version');
+				if( CS_VERSION > $version )
+					qa_redirect('cs_installation');
+
 				//show theme option menu if user is admin
 				$this->content['navigation']['user']['themeoptions'] = array(
 					'label' => qa_lang('cleanstrap/theme_options'),

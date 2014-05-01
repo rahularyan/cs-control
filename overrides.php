@@ -5,7 +5,12 @@ if (!defined('QA_VERSION')) {
 		exit;
 }
 
-
+function qa_page_routing()
+{
+    $pages = qa_page_routing_base();
+    $pages['cs_installation'] = '../qa-plugin/cs-control/installation.php'; // changed to include a new file instead of default page
+    return $pages;
+}
 
 function qa_set_user_avatar($userid, $imagedata, $oldblobid=null){
 	
