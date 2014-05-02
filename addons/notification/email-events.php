@@ -1,7 +1,8 @@
 <?php
+//if this is et to true , the email will be written to the log file 
+define('SEND_EMAIL_DEBUG_MODE', true);
 
 //define the event hook event handlers 
-
 cs_event_hook('a_post', NULL, 'cs_notification_event');
 cs_event_hook('c_post', NULL, 'cs_notification_event');
 cs_event_hook('q_reshow', NULL, 'cs_notification_event');
@@ -64,7 +65,7 @@ function cs_check_time_out_for_email() {
             //extract the emails and send notification 
             cs_process_emails_from_db();
             //update the last rundate 
-            cs_update_last_rundate($current_time);
+            cs_update_last_rundate($current_time->format($date_format));
       }
 }
 
@@ -89,8 +90,30 @@ function cs_process_emails_from_db() {
             $email_body = cs_prepare_email_body($email_queue_data, $email);
             $email_body = $greeting . $email_body . $thank_you_message;
             $email_body = strtr($email_body, $subs);
-            cs_send_email_notification(null, $email, $name, $subject, $email_body, $subs);
+            $notification_sent = cs_send_email_notification(null, $email, $name, $subject, $email_body, $subs);
+            if (!!$notification_sent) {
+                  //update the queue status 
+                  //get the queue ids 
+                  $queue_ids = cs_get_queue_ids_from_queue_data($email_queue_data, $email);
+                  if (isset($queue_ids) && !empty($queue_ids)) {
+                        cs_update_email_queue_status($queue_ids);
+                  }
+            }
       }
+}
+
+function cs_get_queue_ids_from_queue_data($email_queue_data, $email) {
+      $queue_ids = array();
+      if (!!$email_queue_data && is_array($email_queue_data) && !!$email) {
+            foreach ($email_queue_data as $email_queue) {
+                  if (isset($email_queue['email'])) {
+                        if ($email_queue['email'] === $email) {
+                              $queue_ids[] = $email_queue['queue_id'];
+                        }
+                  }
+            }
+      }
+      return $queue_ids;
 }
 
 function cs_prepare_email_body($email_queue_data, $email) {
@@ -106,14 +129,14 @@ function cs_prepare_email_body($email_queue_data, $email) {
                         if (!!$body) {
                               $email_body_arr[$event] = (isset($email_body_arr[$event]) && !empty($email_body_arr[$event]) ) ? $email_body_arr[$event] . "\n\n" : "";
                               $email_body_arr[$event] .= $body;
-                        } 
+                        }
                   } //outer if 
             } //foreach
             foreach ($email_body_arr as $event => $email_body_for_event) {
                   if (!isset($summerized_email_body[$event])) {
-                        $summerized_email_body[$event] = cs_get_email_headers($event) ;
+                        $summerized_email_body[$event] = cs_get_email_headers($event);
                   }
-                  $summerized_email_body[$event] .= (!!$email_body_for_event) ? $email_body_for_event . "\n" : "" ;
+                  $summerized_email_body[$event] .= (!!$email_body_for_event) ? $email_body_for_event . "\n" : "";
             }//foreach 
 
             foreach ($summerized_email_body as $event => $email_body_chunk) {
@@ -147,17 +170,19 @@ function cs_get_email_list($email_queue_data) {
 }
 
 function cs_update_last_rundate($current_time) {
-      // code to update the last rundate option 
+      qa_opt("cs_email_notf_last_run_date", $current_time);
 }
 
 function cs_get_email_queue() {
-
       return qa_db_read_all_assoc(qa_db_query_sub("SELECT * from ^ra_email_queue queue join ^ra_email_queue_receiver rcv on queue.id = rcv.queue_id WHERE queue.status = 0 "));
 }
 
 function cs_get_name_from_userid($userid) {
-
       return qa_db_read_one_value(qa_db_query_sub("SELECT ^userprofile.content AS name from ^users JOIN ^userprofile ON ^users.userid=^userprofile.userid WHERE   ^userprofile.title = 'name' AND ^users.userid =# ", $userid), true);
+}
+
+function cs_update_email_queue_status($queue_ids) {
+      return qa_db_query_sub("UPDATE ^ra_email_queue SET status = '1', sent_on = CURRENT_TIME() WHERE ^ra_email_queue.id IN (#)", $queue_ids);
 }
 
 function cs_notify_users_by_email($event, $postid, $userid, $effecteduserid, $params) {
@@ -173,10 +198,11 @@ function cs_notify_users_by_email($event, $postid, $userid, $effecteduserid, $pa
             $notifying_user['userid'] = $effecteduserid;
             $notifying_user['name'] = $name;
             $notifying_user['email'] = $parent['email'];
-            //consider only first 50 characters for saving notification 
 
+            //consider only first 50 characters for saving notification 
             $content = (isset($params['text']) && !empty($params['text'])) ? $params['text'] : "";
-            if (!!$content && (strlen($content) > 50)) $content = cs_shrink_email_body($params['text'], 50);
+            if (!!$content && (strlen($content) > 50)) 
+                  $content = cs_shrink_email_body($params['text'], 50);
             $title = (isset($params['qtitle']) && !empty($params['qtitle'])) ? $params['qtitle'] : "";
 
             cs_save_email_notification(null, $notifying_user, $logged_in_handle, $event, array(
@@ -408,7 +434,8 @@ function cs_send_email_notification($bcclist, $email, $handle, $subject, $body, 
       $subs['^handle'] = $handle;
       $subs['^open'] = "\n";
       $subs['^close'] = "\n";
-      return cs_send_email(array(
+
+      $email_param = array(
           'fromemail' => qa_opt('from_email'),
           'fromname' => qa_opt('site_title'),
           'mail_list' => $email,
@@ -417,7 +444,12 @@ function cs_send_email_notification($bcclist, $email, $handle, $subject, $body, 
           'subject' => strtr($subject, $subs),
           'body' => strtr($body, $subs),
           'html' => false,
-      ));
+      ) ;
+      if (SEND_EMAIL_DEBUG_MODE) {
+            //this will write to the log file 
+            return cs_send_email_fake($email_param);
+      }
+      return cs_send_email($email_param);
 }
 
 function cs_send_email($params) {
@@ -431,28 +463,22 @@ function cs_send_email($params) {
             if (is_array($params['mail_list'])) {
                   foreach ($params['mail_list'] as $email) {
                         $mailer->AddAddress($email['toemail'], $email['toname']);
-                        writeToFile("Sending email to - " . $email['toemail'] . '-' . $email['toname']);
                   }
             } else {
                   $mailer->AddAddress($params['mail_list'], $params['toname']);
-                  writeToFile("Sending email to - " . $params['mail_list'] . '-' . $params['toname']);
             }
       }
       $mailer->Subject = $params['subject'];
       $mailer->Body = $params['body'];
-      writeToFile("Subject is " . $params['subject']);
-      writeToFile("Body is " . $params['body']);
       if (isset($params['bcclist'])) {
             foreach ($params['bcclist'] as $email) {
                   $mailer->AddBCC($email);
-                  // writeToFile($email);
             }
       }
 
       if ($params['html']) $mailer->IsHTML(true);
 
       if (qa_opt('smtp_active')) {
-            // writeToFile("smtp is active and sending mail ");
             $mailer->IsSMTP();
             $mailer->Host = qa_opt('smtp_address');
             $mailer->Port = qa_opt('smtp_port');
@@ -469,7 +495,11 @@ function cs_send_email($params) {
       }
       return $mailer->Send();
 }
-
+function cs_send_email_fake($email_param)
+{
+      writeToFile("Fake Email Sendind to log the entire email message ");
+      writeToFile(print_r($email_param , true )) ;
+}
 function writeToFile($string) {
       if (qa_opt('event_logger_to_files')) {
             //   Open, lock, write, unlock, close (to prevent interference between multiple writes)
