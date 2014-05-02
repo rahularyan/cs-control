@@ -878,12 +878,36 @@ function cs_combine_assets($assets, $css = true){
 
 
 function cs_compress_css($content) {
-	/* remove comments */
 
-	$content = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $content);
-	/* remove tabs, spaces, newlines, etc. */
-	$content = str_replace(array("\r\n", "\r", "\n", "\t", '  ', '    ', '    '), '', $content);
-	return $content;
+	// Normalize whitespace
+	$content = preg_replace( '/\s+/', ' ', $content );
+
+	// Remove comment blocks, everything between /* and */, unless
+	// preserved with /*! ... */
+	$content = preg_replace( '/\/\*[^\!](.*?)\*\//', '', $content );
+
+	// Remove ; before }
+	$content = preg_replace( '/;(?=\s*})/', '', $content );
+
+	// Remove space after , : ; { } */ >
+	$content = preg_replace( '/(,|:|;|\{|}|\*\/|>) /', '$1', $content );
+
+	// Remove space before , ; { } ( ) >
+	$content = preg_replace( '/ (,|;|\{|}|\(|\)|>)/', '$1', $content );
+
+	// Strips leading 0 on decimal values (converts 0.5px into .5px)
+	$content = preg_replace( '/(:| )0\.([0-9]+)(%|em|ex|px|in|cm|mm|pt|pc)/i', '${1}.${2}${3}', $content );
+
+	// Strips units if value is 0 (converts 0px to 0)
+	$content = preg_replace( '/(:| )(\.?)0(%|em|ex|px|in|cm|mm|pt|pc)/i', '${1}0', $content );
+
+	// Converts all zeros value into short-hand
+	$content = preg_replace( '/0 0 0 0/', '0', $content );
+
+	// Shortern 6-character hex color codes to 3-character where possible
+	$content = preg_replace( '/#([a-f0-9])\\1([a-f0-9])\\2([a-f0-9])\\3/i', '#\1\2\3', $content );
+
+	return trim( $content );
 }
 
 function cs_compress_js( $content ) {
@@ -891,4 +915,15 @@ function cs_compress_js( $content ) {
 
 	$content = JSMin::minify($content);
 	return $content;
+}
+
+function cs_update_tags_meta($tag, $title, $content){
+
+	qa_db_query_sub(
+		'REPLACE ^tagmetas (tag, title, content) VALUES ($, $, $)',
+		$tag, $title, $content
+	);
+
+	return $content;
+	
 }

@@ -7,8 +7,8 @@
 			//content hook
 			cs_event_hook('content', $this->content);
 		
-			$this->content['css_src']['cs_style'] = Q_THEME_URL.'/'.$this->css_name();
-			$this->content['css_admin']['cs_style'] = Q_THEME_URL . '/css/admin.css';
+			$this->content['css_src']['cs_style'] = CS_THEME_URL.'/'.$this->css_name();
+			$this->content['css_admin']['cs_style'] = CS_THEME_URL . '/css/admin.css';
 		
 			//enqueue script and style in content
 			$hooked_script	= cs_event_hook('enqueue_scripts', array());
@@ -64,20 +64,36 @@
 				}
 			
 			}
+			if(cs_event_hook('doctype', $this))
+				$this->content = cs_event_hook('doctype', $this);
 
 		}
 		
 		function head_script()
 		{
+			$this->output('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>');
 			qa_html_theme_base::head_script();
 			$this->output('<script> ajax_url = "' . CS_CONTROL_URL . '/ajax.php";</script>');
+		
+		
+			$this->output('<script> theme_url = "' . CS_THEME_URL . '";</script>');
 			
-			if ($this->request == 'themeoptions') {
-				$this->output('<script type="text/javascript" src="' . Q_THEME_URL . '/js/admin.js"></script>');
-				$this->output('<script type="text/javascript" src="' . Q_THEME_URL . '/js/spectrum.js"></script>'); // color picker
 
-				$this->output('<script type="text/javascript" src="' . Q_THEME_URL . '/js/jquery.uploadfile.min.js"></script>'); // File uploader
+			if (qa_opt('cs_enable_gzip')) //Gzip
+				$this->output('<script type="text/javascript" src="'.CS_THEME_URL.'/js/script_cache.js"></script>');
+			else{
+				if (isset($this->content['script_src']))
+					foreach ($this->content['script_src'] as $script_src)
+						$this->output('<script type="text/javascript" src="'.$script_src.'"></script>');
 			}
+				
+	 
+			
+			
+			//register a hook
+			cs_event_hook('head_script', $this);
+		
+			
 			
 			if($this->cs_is_widget_active('CS Ask Form') && $this->template != 'ask'){
 				$this->output('<script type="text/javascript" src="'.get_base_url().'/qa-content/qa-ask.js"></script>');
@@ -124,10 +140,55 @@
 		
 		function head_css()
 		{
-			qa_html_theme_base::head_css();
-			if ($this->request == 'themeoptions') {
-				$this->output('<link rel="stylesheet" type="text/css" href="' . Q_THEME_URL . '/css/spectrum.css"/>'); // color picker
+			//qa_html_theme_base::head_css();
+			
+			if (qa_opt('cs_enable_gzip')) //Gzip
+				$this->output('<link href="'. CS_THEME_URL . '/css/css_cache.css" rel="stylesheet" type="text/css">');
+			else
+				qa_html_theme_base::head_css();
+				
+			$this->output('<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+				<meta http-equiv="X-UA-Compatible" content="IE=edge"> ');
+			$fav = qa_opt('cs_favicon_url');
+			if( $fav )
+				$this->output('<link rel="shortcut icon" href="' .  $fav . '" type="image/x-icon">');
+			$this->output('
+
+					<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+					<!--[if lte IE 9]>
+						<link rel="stylesheet" type="text/css" href="' . CS_THEME_URL . '/css/ie.css"/>
+					  <script src="' . CS_THEME_URL . '/js/html5shiv.js"></script>
+					  <script src="' . CS_THEME_URL . '/js/respond.min.js"></script>
+					<![endif]-->
+				');
+			
+			
+		   
+			   $this->output('<link rel="stylesheet" type="text/css" href="http://i.icomoon.io/public/temp/e44daa8d54/CleanstrapNew/style.css"/>');
+			  
+			   $this->output('<link href="http://fonts.googleapis.com/css?family=Varela+Round|Open+Sans" rel="stylesheet" type="text/css">');
+				
+			
+			
+			if (qa_opt('cs_custom_style_created')){
+				$this->output('<link rel="stylesheet" type="text/css" href="' . CS_THEME_URL . '/css/dynamic.css"/>');
+			}else{
+				$css = qa_opt('cs_custom_css');
+				$this->output('<style>' . $css . '</style>');
 			}
+			
+			/* 
+			$googlefonts = json_decode(qa_opt('typo_googlefonts'), true);
+			if (isset($googlefonts) && !empty($googlefonts))
+				foreach ($googlefonts as $font_name) {
+					$font_name = str_replace(" ", "+", $font_name);
+					$link      = 'http://fonts.googleapis.com/css?family=' . $font_name;
+					$this->output('<link href="' . $link . '" rel="stylesheet" type="text/css">');
+				} */
+				
+			//register a hook
+			cs_event_hook('head_css', $this);
+
 			
 		}
 		
