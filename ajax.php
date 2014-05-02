@@ -24,12 +24,12 @@
 
 	// load all addons ajax query
 	cs_load_addons_ajax();
+	
+	
 
 if(isset($_REQUEST['action'])){
 	$action = 'cs_ajax_'.$_REQUEST['action'];
-	//if(function_exists($action))
-		$action();
-		sdjfbshdf();
+		cs_event_hook($action, array());
 }	
 
 

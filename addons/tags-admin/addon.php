@@ -16,25 +16,59 @@ qa_register_plugin_module('page', 'addons/tags-admin/page.php', 'cs_tags_admin_p
 
 class CS_Tags_Admin_Addon{
 	function __construct(){
-		// hook buttons into head_script
-		//cs_event_hook('head_script', NULL, array($this, 'head_script'));
+		cs_event_hook('doctype', NULL, array($this, 'navigation'));
+		cs_event_hook('language', NULL, array($this, 'language'));
+		cs_event_hook('enqueue_css', NULL, array($this, 'css'));
+		cs_event_hook('enqueue_scripts', NULL, array($this, 'scripts'));	
+		cs_event_hook('cs_ajax_save_tags', NULL, array($this, 'save_tags'));	
+	}
 		
-		// hook buttons into head_css
-		//cs_event_hook('head_css', NULL, array($this, 'head_css'));
+	public function navigation($themeclass){		
+		if(qa_get_logged_in_level() >= QA_USER_LEVEL_ADMIN)	{
+			//show tags-admin menu if user is admin
+			$themeclass->content['navigation']['sub']['tags-admin'] = array(
+				'label' => qa_lang('cleanstrap/tags_admin'),
+				'url' => qa_path_html('admin/tags-admin'),
+				'icon' => 'icon-wrench'
+			);
+			if($themeclass->request == 'admin/tags-admin') {
+				$themeclass->content['navigation']['sub']['tags-admin']['selected'] = true;
+				$themeclass->content['navigation']['sub']['tags-admin']['selected'] = true;
+				$themeclass->template = 'admin';
+			}
+		
+		}	
 	
-		
+		return $themeclass->content;
 	}
+	public function css($css_src){
 		
-	public function head_script($themeclass){		
-		$themeclass->output('<script type="text/javascript" src="' . CS_CONTROL_URL . '/addons/media/jquery.fileupload.js"></script>');
-		$themeclass->output('<script type="text/javascript" src="' . CS_CONTROL_URL . '/addons/media/jquery.iframe-transport.js"></script>');
-		$themeclass->output('<script type="text/javascript" src="' . CS_CONTROL_URL . '/addons/media/script.js"></script>');
+		$css_src['cs_notification'] = CS_CONTROL_URL . '/addons/tags-admin/styles.css';
+		return  $css_src;
 	}
 	
-	public function head_css($themeclass){
-		$themeclass->output('<link rel="stylesheet" type="text/css" href="' . CS_CONTROL_URL . '/addons/media/styles.css"/>');
-	}
+	public function scripts($src){		
+		$src['cs_notification'] = CS_CONTROL_URL . '/addons/tags-admin/script.js';
 
+		return  $src;
+	}
+	
+	public function language($lang_array){
+		return array(
+			'tags_admin' 			=> 'Tags Admin',
+			'edit_tags_page' 		=> 'Edit tags and description'
+		);
+		
+	}
+	
+	public function save_tags(){	
+		
+		if(qa_get_logged_in_level() >= QA_USER_LEVEL_ADMIN && qa_check_form_security_code('edit-tag', $_REQUEST['code']))	{
+			echo cs_update_tags_meta(qa_post_text('tag'), 'description', qa_post_text('description'));
+		}
+		
+		die();
+	}
 
 }
 

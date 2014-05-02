@@ -66,3 +66,22 @@ qa_register_plugin_layer('cs-layer.php', 'CS Control Layer');
 
 //load all addons
 cs_load_addons();
+
+
+cs_event_hook('enqueue_css', NULL, 'cs_admin_enqueue_css');
+function cs_admin_enqueue_css($css_src){
+	if (qa_request() == 'themeoptions') {
+		$css_src['cs_spectrum'] = Q_THEME_URL . '/css/spectrum.css';		
+	}
+
+	return  $css_src;
+}
+cs_event_hook('enqueue_scripts', NULL, 'cs_admin_enqueue_scripts');
+function cs_admin_enqueue_scripts($src){
+	if (qa_request() == 'themeoptions') {
+		$src['cs_admin'] = Q_THEME_URL . '/js/admin.js';
+		$src['spectrum'] = Q_THEME_URL . '/js/spectrum.js';
+		$src['uploadfile'] = Q_THEME_URL . '/js/jquery.uploadfile.min.js';
+	}
+	return  $src;
+}
