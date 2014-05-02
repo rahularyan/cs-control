@@ -146,8 +146,8 @@
 		'tagged_under' => 'Tagged under',
 		'question_is_featured' => 'this is a featured question',
 		//adding email notification messages 
-	     'greeting' => 'Dear ^user_name , \n\n ',
-	    'thank_you_message' => "\n\nThank you,\n\n^site_title" ,
+	     'greeting' => "Dear ^user_name , \n ",
+	    'thank_you_message' => "\n\nThank you,\n^site_title" ,
 	    'notification_email_subject' => "Updates from ^site_title" ,
 	    //databse snippets to be saved for async email 
 	    'a_post_body_email' => "^open ^done_by has answered this question <a href='^url'> ^q_title </a> \n\n^q_content^close\n\n<a href='^url'>Click  here </a> to see the question\n",
