@@ -1,6 +1,7 @@
 <?php
+
 //if this is et to true , the email will be written to the log file 
-define('SEND_EMAIL_DEBUG_MODE', true);
+define('CS_SEND_EMAIL_DEBUG_MODE', true);
 
 //define the event hook event handlers 
 cs_event_hook('a_post', NULL, 'cs_notification_event');
@@ -27,14 +28,17 @@ cs_event_hook('u_favorite', NULL, 'cs_notification_event');
 cs_event_hook('u_message', NULL, 'cs_notification_event');
 cs_event_hook('u_wall_post', NULL, 'cs_notification_event');
 cs_event_hook('u_level', NULL, 'cs_notification_event');
+//added for related questions 
+cs_event_hook('related', NULL, 'cs_notification_event');
 
 function cs_notification_event($data) {
       $params = $data[3];
-      // writeToFile(print_r($params, true));
-      cs_check_time_out_for_email();
+      writeToFile("This method is invoked for " . $data[4]);
+      writeToFile(print_r($params, true));
+      // cs_check_time_out_for_email();
       $postid = $params['postid'];
       $event = $data[4];
-      $loggeduserid = qa_get_logged_in_userid();
+      $loggeduserid = isset($data[1]) ? $data[1] : qa_get_logged_in_userid();
       $effecteduserid = isset($data[2]) ? $data[2] : "";
       if (!!$effecteduserid) {
             cs_notify_users_by_email($event, $postid, $loggeduserid, $effecteduserid, $params);
@@ -181,29 +185,63 @@ function cs_get_name_from_userid($userid) {
       return qa_db_read_one_value(qa_db_query_sub("SELECT ^userprofile.content AS name from ^users JOIN ^userprofile ON ^users.userid=^userprofile.userid WHERE   ^userprofile.title = 'name' AND ^users.userid =# ", $userid), true);
 }
 
+function cs_get_user_details_from_userid($userid) {
+
+      return qa_db_read_one_assoc(qa_db_query_sub("SELECT ^users.email AS email , ^users.handle AS handle from ^users WHERE ^users.userid = #", $userid), true);
+}
+
 function cs_update_email_queue_status($queue_ids) {
       return qa_db_query_sub("UPDATE ^ra_email_queue SET status = '1', sent_on = CURRENT_TIME() WHERE ^ra_email_queue.id IN (#)", $queue_ids);
 }
 
 function cs_notify_users_by_email($event, $postid, $userid, $effecteduserid, $params) {
       if (!!$effecteduserid) {
-            $parent = $params['parent'];
-            $name = cs_get_name_from_userid($effecteduserid);
-            $name = (!!$name) ? $name : $parent['handle'];
             //get the working user data  
             $logged_in_handle = qa_get_logged_in_handle();
-            $logged_in_user_name = cs_get_name_from_userid(qa_get_logged_in_userid());
+            $logged_in_user_name = cs_get_name_from_userid($userid);
             $logged_in_user_name = (!!$logged_in_user_name) ? $logged_in_user_name : $logged_in_handle;
             // writeToFile("The name is " . print_r($name, true));
+
+            $name = cs_get_name_from_userid($effecteduserid);
+
+            if ( in_array($event, array('c_post' , 'q_reshow' , 'a_reshow' , 'c_reshow' , 'a_select')) ) {
+                  //this is because we wont have the $parent['email'] for each effected userids when a comment event occurs 
+                  $user_details = cs_get_user_details_from_userid($effecteduserid);
+                  $name = (!!$name) ? $name : $user_details['handle'];
+                  $email = $user_details['email'];
+            }else if (in_array($event, array('q_approve' , 'q_reject'))  ) {
+                  $oldquestion = $params['oldquestion'];
+                  $name = (!!$name) ? $name : $oldquestion['handle'];
+                  $email = $oldquestion['email'];
+            } else if (in_array($event, array('a_approve' , 'a_reject' ))  ) {
+                  $oldanswer = $params['oldanswer'];
+                  $name = (!!$name) ? $name : $oldanswer['handle'];
+                  $email = $oldanswer['email'];
+            }else if (in_array($event, array('c_approve' , 'c_reject' ))  ) {
+                  $oldcomment = $params['oldcomment'];
+                  $name = (!!$name) ? $name : $oldcomment['handle'];
+                  $email = $oldcomment['email'];
+            }else {
+                  $parent = $params['parent'];
+                  $name = (!!$name) ? $name : $parent['handle'];
+                  $email = $parent['email'];
+            }
+
             $notifying_user['userid'] = $effecteduserid;
             $notifying_user['name'] = $name;
-            $notifying_user['email'] = $parent['email'];
-
+            $notifying_user['email'] = $email;
             //consider only first 50 characters for saving notification 
-            $content = (isset($params['text']) && !empty($params['text'])) ? $params['text'] : "";
-            if (!!$content && (strlen($content) > 50)) 
-                  $content = cs_shrink_email_body($params['text'], 50);
-            $title = (isset($params['qtitle']) && !empty($params['qtitle'])) ? $params['qtitle'] : "";
+            
+            if ($event === 'related') {
+                  $content = (isset($params['text']) && !empty($params['text'])) ? $params['text'] : "";
+                  $title = (isset($params['qtitle']) && !empty($params['qtitle'])) ? $params['qtitle'] : "";
+            }else {
+                  $content = (isset($params['text']) && !empty($params['text'])) ? $params['text'] : "";
+                  $title = (isset($params['title']) && !empty($params['title'])) ? $params['title'] : "";
+            }
+
+            if (!!$content && (strlen($content) > 50)) $content = cs_shrink_email_body($params['text'], 50);
+
 
             cs_save_email_notification(null, $notifying_user, $logged_in_handle, $event, array(
                 '^q_handle' => isset($logged_in_user_name) ? $logged_in_user_name : isset($logged_in_handle) ? $logged_in_handle : qa_lang('main/anonymous'),
@@ -291,6 +329,9 @@ function cs_get_email_headers($event = "") {
                   case 'u_level':
                         return qa_lang("cleanstrap/u_level_email_header");
                         break;
+                  case 'related':
+                        return qa_lang("cleanstrap/related_email_header");
+                        break;
                   default:
                         break;
             }
@@ -307,16 +348,16 @@ function cs_get_email_body($event = "") {
                         return qa_lang("cleanstrap/c_post_body_email");
                         break;
                   case 'q_reshow':
-                        return qa_lang("cleanstrap/q_reshown_body_email");
+                        return qa_lang("cleanstrap/q_reshow_body_email");
                         break;
                   case 'a_reshow':
-                        return qa_lang("cleanstrap/a_reshown_body_email");
+                        return qa_lang("cleanstrap/a_reshow_body_email");
                         break;
                   case 'c_reshow':
-                        return qa_lang("cleanstrap/c_reshown_body_email");
+                        return qa_lang("cleanstrap/c_reshow_body_email");
                         break;
                   case 'a_select':
-                        return qa_lang("cleanstrap/a_selected_body_email");
+                        return qa_lang("cleanstrap/a_select_body_email");
                         break;
                   case 'q_vote_up':
                         return qa_lang("cleanstrap/q_vote_up_body_email");
@@ -371,6 +412,9 @@ function cs_get_email_body($event = "") {
                         break;
                   case 'u_level':
                         return qa_lang("cleanstrap/u_level_body_email");
+                        break;
+                   case 'related':
+                        return qa_lang("cleanstrap/related_body_email");
                         break;
                   default:
                         break;
@@ -444,8 +488,8 @@ function cs_send_email_notification($bcclist, $email, $handle, $subject, $body, 
           'subject' => strtr($subject, $subs),
           'body' => strtr($body, $subs),
           'html' => false,
-      ) ;
-      if (SEND_EMAIL_DEBUG_MODE) {
+      );
+      if (CS_SEND_EMAIL_DEBUG_MODE) {
             //this will write to the log file 
             return cs_send_email_fake($email_param);
       }
@@ -495,11 +539,14 @@ function cs_send_email($params) {
       }
       return $mailer->Send();
 }
-function cs_send_email_fake($email_param)
-{
+
+function cs_send_email_fake($email_param) {
       writeToFile("Fake Email Sendind to log the entire email message ");
-      writeToFile(print_r($email_param , true )) ;
+      writeToFile(print_r($email_param, true));
+      //fake email should never fail 
+      return true;
 }
+
 function writeToFile($string) {
       if (qa_opt('event_logger_to_files')) {
             //   Open, lock, write, unlock, close (to prevent interference between multiple writes)

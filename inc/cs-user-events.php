@@ -29,6 +29,7 @@
 					$thread = $params['thread'];
 					unset($params['thread']);
 					if ($loggeduserid != $params['parent']['userid']){
+						$effecteduserid = $params['parent']['userid'];
 						$this->AddEvent($postid, $userid, $params['parent']['userid'], $params, $event);
 						cs_event_hook('c_post', array($postid,$userid, $effecteduserid, $params, $event));
 					}
@@ -42,6 +43,7 @@
 						$user_array = array_unique($user_array, SORT_REGULAR);
 						foreach ($user_array as $user){		
 							$this->AddEvent($postid, $userid, $user, $params, $event);	
+							$effecteduserid = $user ; //for this scenario the $user_array contains all user ids in the current commented thread 
 							cs_event_hook('c_post', array($postid,$userid, $effecteduserid, $params, $event));							
 						}
 					}			

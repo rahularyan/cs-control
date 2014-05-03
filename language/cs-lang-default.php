@@ -176,6 +176,8 @@
 	    'u_message_body_email' => "^open ^done_by has sent a private message ^q_content^close\n\n<a href='^url'>Click  here </a> to reply \n",
 	    'u_wall_post_body_email' => "^open ^done_by has posted on your wall ^q_content^close\n\n<a href='^url'>Click  here </a> to view \n",
 	    'u_level_body_email' => "^open ^done_by has posted on your wall ^q_content^close\n\n<a href='^url'>Click  here </a> to view \n",
+	    'related_body_email' => "^open ^done_by has posted a related question question <a href='^url'> ^q_title </a> \n\n^q_content^close\n\n<a href='^url'>Click  here </a> to see the question\n",
+
 	    //subject headers
 	    'a_post_email_header' => "New answers on questions : \n\n",
 	    'c_post_email_header' => "New comments :\n\n",
@@ -201,6 +203,7 @@
 	    'u_message_email_header' => "You have new Messages :\n\n",
 	    'u_wall_post_email_header' => "You have new stuffs on your wall :\n\n",
 	    'u_level_email_header' => "Level Improvements :\n\n",
+	    'related_email_header' => "Related Questions :\n\n",
 	);
 	
 
