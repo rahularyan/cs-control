@@ -36,10 +36,11 @@ function cs_notification_event($data) {
       writeToFile("This method is invoked for " . $data[4]);
       writeToFile(print_r($params, true));
       // cs_check_time_out_for_email();
-      $postid = $params['postid'];
+      $postid = isset($params['postid']) ? $params['postid'] : "";
       $event = $data[4];
       $loggeduserid = isset($data[1]) ? $data[1] : qa_get_logged_in_userid();
       $effecteduserid = isset($data[2]) ? $data[2] : "";
+      writeToFile("Effected user id " . $effecteduserid);
       if (!!$effecteduserid) {
             cs_notify_users_by_email($event, $postid, $loggeduserid, $effecteduserid, $params);
       }
@@ -182,7 +183,7 @@ function cs_get_email_queue() {
 }
 
 function cs_get_name_from_userid($userid) {
-      return qa_db_read_one_value(qa_db_query_sub("SELECT ^userprofile.content AS name from ^users JOIN ^userprofile ON ^users.userid=^userprofile.userid WHERE   ^userprofile.title = 'name' AND ^users.userid =# ", $userid), true);
+      return qa_db_read_one_value(qa_db_query_sub("SELECT ^userprofile.content AS name from  ^userprofile WHERE ^userprofile.title = 'name' AND ^userprofile.userid =# ", $userid), true);
 }
 
 function cs_get_user_details_from_userid($userid) {
@@ -204,53 +205,146 @@ function cs_notify_users_by_email($event, $postid, $userid, $effecteduserid, $pa
 
             $name = cs_get_name_from_userid($effecteduserid);
 
-            if ( in_array($event, array('c_post' , 'q_reshow' , 'a_reshow' , 'c_reshow' , 'a_select')) ) {
-                  //this is because we wont have the $parent['email'] for each effected userids when a comment event occurs 
-                  $user_details = cs_get_user_details_from_userid($effecteduserid);
-                  $name = (!!$name) ? $name : $user_details['handle'];
-                  $email = $user_details['email'];
-            }else if (in_array($event, array('q_approve' , 'q_reject'))  ) {
-                  $oldquestion = $params['oldquestion'];
-                  $name = (!!$name) ? $name : $oldquestion['handle'];
-                  $email = $oldquestion['email'];
-            } else if (in_array($event, array('a_approve' , 'a_reject' ))  ) {
-                  $oldanswer = $params['oldanswer'];
-                  $name = (!!$name) ? $name : $oldanswer['handle'];
-                  $email = $oldanswer['email'];
-            }else if (in_array($event, array('c_approve' , 'c_reject' ))  ) {
-                  $oldcomment = $params['oldcomment'];
-                  $name = (!!$name) ? $name : $oldcomment['handle'];
-                  $email = $oldcomment['email'];
-            }else {
-                  $parent = $params['parent'];
-                  $name = (!!$name) ? $name : $parent['handle'];
-                  $email = $parent['email'];
+            switch ($event) {
+
+                  case 'a_post':
+                  case 'related':
+                        $parent = isset($params['parent']) ? $params['parent'] : "";
+                        if (!!$parent) {
+                              $name = (!!$name) ? $name : $parent['handle'];
+                              $email = $parent['email'];
+                        } else {
+                              //seems proper values are not available 
+                              return;
+                        }
+                        break;
+                  case 'c_post':
+                  case 'q_reshow':
+                  case 'a_reshow':
+                  case 'c_reshow':
+                  case 'a_select':
+                  case 'q_vote_up':
+                  case 'q_vote_down':
+                  case 'a_vote_up':
+                  case 'a_vote_down':
+                  case 'q_favorite':
+                  case 'u_favorite':
+                  case 'u_message':
+                  case 'u_wall_post':
+                  case 'u_level':
+                        //this is because we wont have the $parent['email'] for each effected userids when a these selected events occurs 
+                        $user_details = cs_get_user_details_from_userid($effecteduserid);
+                        $name = (!!$name) ? $name : $user_details['handle'];
+                        $email = $user_details['email'];
+                        break;
+                  case 'q_approve':
+                  case 'q_reject':
+                        $oldquestion = $params['oldquestion'];
+                        $name = (!!$name) ? $name : $oldquestion['handle'];
+                        $email = $oldquestion['email'];
+                        break;
+                  case 'a_approve':
+                  case 'a_reject':
+                        $oldanswer = $params['oldanswer'];
+                        $name = (!!$name) ? $name : $oldanswer['handle'];
+                        $email = $oldanswer['email'];
+                        break;
+                  case 'c_approve':
+                  case 'c_reject':
+                        $oldcomment = $params['oldcomment'];
+                        $name = (!!$name) ? $name : $oldcomment['handle'];
+                        $email = $oldcomment['email'];
+                        break;
+                  default:
+                        # code...
+                        break;
             }
 
             $notifying_user['userid'] = $effecteduserid;
             $notifying_user['name'] = $name;
             $notifying_user['email'] = $email;
             //consider only first 50 characters for saving notification 
-            
-            if ($event === 'related') {
+            if ($event === 'u_message') {
+                  $content = (isset($params['message']) && !empty($params['message'])) ? $params['message'] : "";
+                  $title = "";
+                  $canreply = !(qa_get_logged_in_flags() & QA_USER_FLAGS_NO_MESSAGES);
+                  $url = qa_path_absolute($canreply ? ('message/' . $logged_in_handle) : ('user/' . $logged_in_handle));
+            } else if ($event === 'u_wall_post') {
+                  $content = (isset($params['text']) && !empty($params['text'])) ? $params['text'] : "";
+                  if (!!$content) {
+                        $blockwordspreg = qa_get_block_words_preg();
+                        $content = qa_block_words_replace($content, $blockwordspreg);
+                  }
+                  $title = "";
+                  $url = qa_path_absolute('user/' . $params['handle'] . '/wall', null, null);
+            } else if ($event === 'u_level') {
+                  $title = "";
+                  $url = qa_path_absolute('user/' . $params['handle']);
+                  $old_level = $params['oldlevel'];
+                  $new_level = $params['level'];
+                  if (($new_level >= QA_USER_LEVEL_APPROVED) && ($old_level < QA_USER_LEVEL_APPROVED)) {
+                        $approved_only = true;
+                  } else if (($new_level >= QA_USER_LEVEL_APPROVED) && ($old_level < $new_level )) {
+                        $approved_only = false;
+                  } else {
+                        //if the designation decreases no need to notify 
+                        return;
+                  }
+
+                  if (!$approved_only) {
+                        $new_designation = cs_get_user_desg($new_level);
+                  }
+
+                  $content = strtr(qa_lang($approved_only ? 'cleanstrap/u_level_approved_body_email' : 'cleanstrap/u_level_improved_body_email'), array(
+                      '^f_handle' => $fromhandle,
+                      '^done_by' => isset($logged_in_user_name) ? $logged_in_user_name : isset($logged_in_handle) ? $logged_in_handle : qa_lang('main/anonymous'),
+                      '^url' => $url,
+                      '^new_designation' => $new_designation,
+                  ));
+            } else {
                   $content = (isset($params['text']) && !empty($params['text'])) ? $params['text'] : "";
                   $title = (isset($params['qtitle']) && !empty($params['qtitle'])) ? $params['qtitle'] : "";
-            }else {
-                  $content = (isset($params['text']) && !empty($params['text'])) ? $params['text'] : "";
-                  $title = (isset($params['title']) && !empty($params['title'])) ? $params['title'] : "";
+                  $url = qa_q_path($params['qid'], $params['qtitle'], true);
             }
-
+            //shrink the email body content 
             if (!!$content && (strlen($content) > 50)) $content = cs_shrink_email_body($params['text'], 50);
-
 
             cs_save_email_notification(null, $notifying_user, $logged_in_handle, $event, array(
                 '^q_handle' => isset($logged_in_user_name) ? $logged_in_user_name : isset($logged_in_handle) ? $logged_in_handle : qa_lang('main/anonymous'),
                 '^q_title' => $title,
                 '^q_content' => $content,
-                '^url' => qa_q_path($params['qid'], $params['qtitle'], true),
+                '^url' => (!!$url) ? $url : "",
                 '^done_by' => isset($logged_in_user_name) ? $logged_in_user_name : isset($logged_in_handle) ? $logged_in_handle : qa_lang('main/anonymous'),
                     )
             );
+      }
+}
+
+function cs_get_user_desg($level) {
+      switch ($level) {
+            case QA_USER_LEVEL_BASIC :
+                  return qa_lang("cleanstrap/basic_desg");
+                  break;
+            case QA_USER_LEVEL_APPROVED :
+                  return qa_lang("cleanstrap/approved_desg");
+                  break;
+            case QA_USER_LEVEL_EXPERT :
+                  return qa_lang("cleanstrap/expert_desg");
+                  break;
+            case QA_USER_LEVEL_EDITOR :
+                  return qa_lang("cleanstrap/editor_desg");
+                  break;
+            case QA_USER_LEVEL_MODERATOR :
+                  return qa_lang("cleanstrap/moderator_desg");
+                  break;
+            case QA_USER_LEVEL_ADMIN :
+                  return qa_lang("cleanstrap/admin_desg");
+                  break;
+            case QA_USER_LEVEL_SUPER :
+                  return qa_lang("cleanstrap/super_admin_desg");
+                  break;
+            default:
+                  break;
       }
 }
 
@@ -405,7 +499,10 @@ function cs_get_email_body($event = "") {
                         return qa_lang("cleanstrap/u_favorite_body_email");
                         break;
                   case 'u_message':
-                        return qa_lang("cleanstrap/u_message_body_email");
+                        $body = qa_lang("cleanstrap/u_message_body_email");
+                        $canreply = !(qa_get_logged_in_flags() & QA_USER_FLAGS_NO_MESSAGES);
+                        $more = qa_lang($canreply ? 'cleanstrap/u_message_reply_email' : 'cleanstrap/u_message_info');
+                        return $body . $more;
                         break;
                   case 'u_wall_post':
                         return qa_lang("cleanstrap/u_wall_post_body_email");
@@ -413,7 +510,7 @@ function cs_get_email_body($event = "") {
                   case 'u_level':
                         return qa_lang("cleanstrap/u_level_body_email");
                         break;
-                   case 'related':
+                  case 'related':
                         return qa_lang("cleanstrap/related_body_email");
                         break;
                   default:

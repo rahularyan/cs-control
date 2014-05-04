@@ -173,9 +173,13 @@
 	    'q_post_body_email' => "^open ^done_by has posted a new question <a href='^url'> ^q_title </a> \n\n^q_content^close\n\n<a href='^url'>Click  here </a> to see the question\n",
 	    // these four things have to be tested properly
 	    'u_favorite_body_email' => "^open ^done_by is now following you \n",
-	    'u_message_body_email' => "^open ^done_by has sent a private message ^q_content^close\n\n<a href='^url'>Click  here </a> to reply \n",
-	    'u_wall_post_body_email' => "^open ^done_by has posted on your wall ^q_content^close\n\n<a href='^url'>Click  here </a> to view \n",
-	    'u_level_body_email' => "^open ^done_by has posted on your wall ^q_content^close\n\n<a href='^url'>Click  here </a> to view \n",
+	    'u_message_body_email' => "^open ^done_by has sent a private message ^q_content^close",
+	    'u_message_reply_email' => "^open <a href='^url'>Click  here </a> to reply by private message\n",
+	    'u_message_info' => "^open More information about <a href='^url'>^done_by</a> ^close \n",
+	    'u_wall_post_body_email' => "^open ^done_by has posted on your wall - ^q_content^close\n\n<a href='^url'>Click  here </a> to respond \n",
+	    'u_level_approved_body_email' => "^open ^done_by has approved your profile ^close <a href='^url'>Click  here </a> to see your new profile \n",
+	    'u_level_improved_body_email' => "^open ^done_by has promoted you as ^new_designation ^close\n\n<a href='^url'>Click  here </a> to see your new profile  \n",
+	    'u_level_body_email' => "^open ^q_content  ^close",
 	    'related_body_email' => "^open ^done_by has posted a related question question <a href='^url'> ^q_title </a> \n\n^q_content^close\n\n<a href='^url'>Click  here </a> to see the question\n",
 
 	    //subject headers
@@ -204,6 +208,14 @@
 	    'u_wall_post_email_header' => "You have new stuffs on your wall :\n\n",
 	    'u_level_email_header' => "Level Improvements :\n\n",
 	    'related_email_header' => "Related Questions :\n\n",
+	    // designation snippets 
+	    'basic_desg' => "Basic User ",
+	    'approved_desg' => "Approved User ",
+	    'expert_desg' => "Expert ",
+	    'editor_desg' => "Editor ",
+	    'moderator_desg' => "Moderator ",
+	    'admin_desg' => "Admin ",
+	    'super_admin_desg' => "Super Admin ",
 	);
 	
 

@@ -167,6 +167,9 @@
 						$effecteduserid = $params['parent']['userid'];
 						if ($loggeduserid != $effecteduserid){
 							$event = 'related';
+							$question = $this->GetQuestion($params);
+							$params['qtitle'] = $params['title'];
+							$params['qid'] = $question['postid'];
 							$this->AddEvent($postid,$userid, $effecteduserid, $params, $event);
 							cs_event_hook($event, array($postid,$userid, $effecteduserid, $params, $event));
 						}
@@ -174,6 +177,7 @@
 					break;
 				case 'u_favorite':
 					$this->UpdateUserFavorite($postid,$userid, $params, 'u_favorite', 1);
+					$effecteduserid = $params['userid'] ; 
 					cs_event_hook($event, array($postid,$userid, $effecteduserid, $params, $event));
 					$dolog=false;
 					break;
@@ -263,7 +267,7 @@
 					$params[$eventname]=1;
 					
 					$this->AddEvent($postid,$userid, $effecteduserid, $params, $newevent);
-					cs_event_hook($event, array($postid,$userid, $effecteduserid, $params, $event));
+					cs_event_hook($newevent, array($postid,$userid, $effecteduserid, $params, $newevent));
 				}
 			}else{
 				$postparams=json_decode($posts[0],true);
@@ -306,7 +310,8 @@
 					"UPDATE ^ra_userevent SET datetime=NOW(), userid=$, effecteduserid=$, postid=$, event=$, params=$ WHERE postid=$ AND event=$",
 					$userid, $effecteduserid, $postid, $newevent,$paramstring, $postid, $newevent
 				);
-				cs_event_hook($event, array($postid,$userid, $effecteduserid, $params, $event));
+
+				cs_event_hook($newevent, array($postid,$userid, $effecteduserid, $params, $newevent));
 			}
 		}
 		
