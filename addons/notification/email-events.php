@@ -35,7 +35,7 @@ function cs_notification_event($data) {
       $params = $data[3];
       writeToFile("This method is invoked for " . $data[4]);
       writeToFile(print_r($params, true));
-      // cs_check_time_out_for_email();
+      cs_check_time_out_for_email();
       $postid = isset($params['postid']) ? $params['postid'] : "";
       $event = $data[4];
       $loggeduserid = isset($data[1]) ? $data[1] : qa_get_logged_in_userid();
